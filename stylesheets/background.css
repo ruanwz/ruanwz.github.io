@@ -1,0 +1,11 @@
+/* line 3, /Users/wendy/gitrepos/ruanwz.github.io/source/stylesheets/background.css.scss */
+body {
+  background-color: #ccc;
+  background-attachment: fixed; }
+
+/* line 8, /Users/wendy/gitrepos/ruanwz.github.io/source/stylesheets/background.css.scss */
+.content_box {
+  background: #fff;
+  -moz-box-shadow: #494949 2px 2px 2px;
+  -webkit-box-shadow: #494949 2px 2px 2px;
+  box-shadow: #494949 2px 2px 2px; }

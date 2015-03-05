@@ -1,0 +1,922 @@
+<html>
+<head>
+<meta charset='utf-8'>
+<meta content='IE=edge;chrome=1' http-equiv='X-UA-Compatible'>
+<title>David's Blog</title>
+<meta content='' name='description'>
+<meta content='width=device-width' name='viewport'>
+<link href='/css/normalize.css' rel='stylesheet'>
+<link href='/css/main.css' rel='stylesheet'>
+<link href='/css/bootstrap.min.css' rel='stylesheet'>
+<link href='/stylesheets/background.css' rel='stylesheet'>
+<link href='/stylesheets/article.css' rel='stylesheet'>
+<script src='/js/vendor/modernizr-2.6.1.min.js'></script>
+<script src='/js/vendor/jquery-1.8.0.min.js'></script>
+<script src='/js/bootstrap.min.js'></script>
+<link href="/stylesheets/rouge.css" rel="stylesheet" type="text/css" />
+<link href="/stylesheets/home.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<header>
+<nav class='navbar navbar-default' role='navigation'>
+<div class='navbar-header'>
+<button class='navbar-toggle' data-target='.navbar-ex1-collapse' data-toggle='collapse' type='button'>
+<span class='icon-bar'></span>
+<span class='icon-bar'></span>
+<span class='icon-bar'></span>
+</button>
+<a class='navbar-brand'></a>
+</div>
+<div class='collapse navbar-collapse navbar-ex1-collapse'>
+<ul class='nav navbar-nav'>
+<li>
+<a href='/'>Home</a>
+</li>
+<li>
+<a href='/feed.xml'>Feed</a>
+</li>
+<li>
+<a href='/about'>About</a>
+</li>
+</ul>
+</div>
+</nav>
+</header>
+<section class='main'>
+<div id='main' role='main'>
+<div class='container'>
+<div class='jumbotron content_box'>
+<div class='container'>
+<div class='row'>
+<div class='col-lg-2 col-xs-4'>
+<img alt='logo' class='img-responsive' src='/img/logo.jpg'>
+</div>
+<h1 class='col-lg-10 col-xs-8'>
+David's Blog
+</h1>
+</div>
+</div>
+</div>
+<div class='row'>
+<div class='col-lg-8 col-xs-12'>
+<ul class='well-lg content_box'>
+<p>
+Page 1 of 4
+</p>
+<ul class='pager'>
+</ul>
+<li class='article'>
+<h2>
+<a href="/articles/2014/09/12/encoding-message/">encoding message</a>
+<span>Sep 12</span>
+</h2>
+<!--
+use article.summary(250) if you have Nokogiri available to show just
+the first 250 characters
+-->
+<h2>关于practicingruby</h2>
+
+<p>practicingruby是Gregory
+Brown定期撰写的关于ruby编程的文章。很有深度，欢迎大家订阅。</p>
+
+<h2>The anatomy of information in software systems</h2>
+
+<p>9月份的文章是关于如何把消息编码。内容如下的IRC消息，应该如何解释</p>
+<pre class="highlight ruby"><code>
+<span class="no">PRIVMSG</span> <span class="c1">#practicing ruby testing :Seasons greetings to you all!\r\n</span>
+</code></pre>
+
+<p>在ruby里可以表示为</p>
+<pre class="highlight ruby"><code>
+<span class="p">[</span><span class="s2">"PRIVMSG...</span></code></pre>
+<a href="/articles/2014/09/12/encoding-message/">Read More...</a>
+</li>
+<li class='article'>
+<h2>
+<a href="/articles/2014/09/09/meet-elixir/">meet elixir</a>
+<span>Sep  9</span>
+</h2>
+<!--
+use article.summary(250) if you have Nokogiri available to show just
+the first 250 characters
+-->
+<h2>Meet Elixir ScreenCast</h2>
+
+<p>Elixir马上就要发布1.0版，估计以后的语法不会有大的改动了。</p>
+
+<p>看Elixir的书和screencast的其中一个问题是等到你看的时候，Elixir的语法已经和制作书和screencast时的语法不一样了。</p>
+
+<p>最近看了Meet Elixir，并把screencast里的例子更新到使用最新的Elixir版本(0.15.1)。放在
+<a href="https://github.com/ruanwz/mystreamers">https://github.com/ruanwz/mystreamers</a></p>
+
+<a href="/articles/2014/09/09/meet-elixir/">Read More...</a>
+</li>
+<li class='article'>
+<h2>
+<a href="/articles/2014/09/06/review-confident-ruby-handling-failure/">review confident ruby(handling failure)</a>
+<span>Sep  6</span>
+</h2>
+<!--
+use article.summary(250) if you have Nokogiri available to show just
+the first 250 characters
+-->
+<h2>介绍 Handling Failure</h2>
+
+<p>自信地处理错误情况。这本书只讨论BRE(begin/rescue/end) block,因为BRE在代码里是如此醒目,
+会把注意力引离method要做的事，所以需要想办法不要让它出现在程序的主要逻辑里。</p>
+
+<h2>Handling Failure的模式</h2>
+
+<ol>
+<li>Prefer top-level rescue clause</li>
+<li>Use checked methods for risky operations</li>
+<li>Use bouncer methods</li>
+</ol>
+
+<h3>Prefer top...</h3>
+<a href="/articles/2014/09/06/review-confident-ruby-handling-failure/">Read More...</a>
+</li>
+<li class='article'>
+<h2>
+<a href="/articles/2014/09/05/review-confident-ruby-delivering-results/">review confident ruby(delivering results)</a>
+<span>Sep  5</span>
+</h2>
+<!--
+use article.summary(250) if you have Nokogiri available to show just
+the first 250 characters
+-->
+<h2>介绍 Delivering Results</h2>
+
+<p>为method的caller提供output</p>
+
+<h2>Delivering Results的模式</h2>
+
+<ol>
+<li>Write total functions</li>
+<li>Call back instead of returning</li>
+<li>Represent failure with benign value</li>
+<li>Represent failure with a special case object</li>
+<li>Return a status object</li>
+<li>Yield a status object</li>
+</ol>
+<a href="/articles/2014/09/05/review-confident-ruby-delivering-results/">Read More...</a>
+</li>
+<li class='article'>
+<h2>
+<a href="/articles/2014/09/04/review-confident-ruby-collecting-input/">review confident ruby(collecting input)</a>
+<span>Sep  4</span>
+</h2>
+<!--
+use article.summary(250) if you have Nokogiri available to show just
+the first 250 characters
+-->
+<h2>介绍 Collecting Input</h2>
+
+<p>method需要input，当决定好method的算法所需要的input，我们需要决定如何获取input。
+有3种策略用于确保方法有可靠的collaborators来执行他们的role</p>
+
+<ol>
+<li>Coerce objects into the roles we need them to play.</li>
+<li>Reject unexpected values which cannot play the needed roles.</li>
+<li>Substitute known-good...</li>
+</ol>
+<a href="/articles/2014/09/04/review-confident-ruby-collecting-input/">Read More...</a>
+</li>
+<li class='article'>
+<h2>
+<a href="/articles/2014/09/03/review-confident-ruby/">review confident ruby</a>
+<span>Sep  3</span>
+</h2>
+<!--
+use article.summary(250) if you have Nokogiri available to show just
+the first 250 characters
+-->
+<h2>再读confident ruby(performing work部分)</h2>
+
+<p>再读confident ruby，记下以下要点。</p>
+
+<h2>每个函数应包含4部分</h2>
+
+<ol>
+<li>collecting input</li>
+<li>performing work</li>
+<li>delivering result</li>
+<li>handling failures</li>
+</ol>
+
+<h2>performing work的模式</h2>
+
+<p>这个部分只有一个pattern</p>
+
+<h3>sending a strong message</h3>
+
+<p>要发消息给trused object,需要3个条件</p>
+
+<ol>
+<li>识别要完成工作所需...</li>
+</ol>
+<a href="/articles/2014/09/03/review-confident-ruby/">Read More...</a>
+</li>
+<li class='article'>
+<h2>
+<a href="/articles/2014/08/23/developing-rails-app-using-docker-by-fig/">Developing Rails App Using Docker by fig</a>
+<span>Aug 23</span>
+</h2>
+<!--
+use article.summary(250) if you have Nokogiri available to show just
+the first 250 characters
+-->
+<h2>基于虚拟机或容器创建开发环境的优点</h2>
+
+<ol>
+<li>可以方便地切换不同的项目</li>
+<li>在团队内共享项目的开发环境，避免所有人都浪费时间来设置环境</li>
+<li>避免不同项目的设置冲突</li>
+<li>可以使开发环境更加接近部署的环境</li>
+</ol>
+
+<h2>Docker vs VirtualBox</h2>
+
+<p>以前试过使用VirtualBox虚拟机来做开发环境，因为团队里同时使用Linux和Windows。
+但发现有2个问题，一是速度太慢，二是在windows下，编辑器保存文件后并不能触发
+VirtualBox里的自动化编译或刷新。</p>
+
+<p>因此尝试使用Docker,因为现...</p>
+<a href="/articles/2014/08/23/developing-rails-app-using-docker-by-fig/">Read More...</a>
+</li>
+<li class='article'>
+<h2>
+<a href="/articles/2014/07/24/decision-tree/">Decision Tree</a>
+<span>Jul 24</span>
+</h2>
+<!--
+use article.summary(250) if you have Nokogiri available to show just
+the first 250 characters
+-->
+<h2>数据分析服务: BigML</h2>
+
+<p>今天我看到一个数据分析的服务，可以上传CSV的数据，分析后可以预测新的结果。</p>
+
+<p>它有几个步骤</p>
+
+<ol>
+<li>上传CSV数据,并设定每行的数据类型，如数字，字符。数据最后一列必须是结果列</li>
+<li>建立数据集，这个过程需要几秒或几小时。需要选定需要分析的属性，最终会给出一个属性列表，显示属性的一些统计数据：缺失数据，错误和直方图</li>
+<li>建立模型，通过数据集生成模型</li>
+<li>为新输入预测结果</li>
+<li>建立ensembles，可以用所有的输入行和列来生产多个model，合成一个ensemble,用户可以这样...</li>
+</ol>
+<a href="/articles/2014/07/24/decision-tree/">Read More...</a>
+</li>
+<li class='article'>
+<h2>
+<a href="/articles/2014/05/19/try-facebook-testing-lib-jest/">Try facebook testing lib Jest</a>
+<span>May 19</span>
+</h2>
+<!--
+use article.summary(250) if you have Nokogiri available to show just
+the first 250 characters
+-->
+<h2>The new testing framework from facebook</h2>
+
+<p>Facebook released their new testing framework:
+<a href="http://facebook.github.io/jest/">Jest</a></p>
+
+<p>It seems to be very nice that can help you to mock the dependencies
+automatically:</p>
+
+<blockquote>
+<p>In order to write an effective unit test, you want to be able to isolate...</p>
+</blockquote>
+<a href="/articles/2014/05/19/try-facebook-testing-lib-jest/">Read More...</a>
+</li>
+<li class='article'>
+<h2>
+<a href="/articles/2014/03/27/reading-notes-of-a-rubymotion-book/">Reading notes of a rubymotion book</a>
+<span>Mar 27</span>
+</h2>
+<!--
+use article.summary(250) if you have Nokogiri available to show just
+the first 250 characters
+-->
+<h3>Use NSLog instead of puts</h3>
+
+<p>Because puts wouldn’t output to device logs</p>
+
+<h3>RubyMotion provide help for 3 things</h3>
+
+<ol>
+<li>flexible workflow(editor, command line, repl)</li>
+<li>use ruby language</li>
+<li>skip the large set of new API have to learn</li>
+</ol>
+
+<h3>Value Object</h3>
+
+<p>There are 4 value...</p>
+<a href="/articles/2014/03/27/reading-notes-of-a-rubymotion-book/">Read More...</a>
+</li>
+<ul class='pager'>
+<li><a href="/p2/">Next page</a></li>
+</ul>
+</ul>
+</div>
+<div class='col-lg-4 hidden-xs asider hidden-md hidden-sm'>
+<dl class='well-lg content_box'>
+<dt>
+<h2>Recent Articles</h2>
+</dt>
+<dd>
+<ol>
+<li>
+<a href="/articles/2014/09/12/encoding-message/">encoding message</a>
+<span>Sep 12</span>
+</li>
+<li>
+<a href="/articles/2014/09/09/meet-elixir/">meet elixir</a>
+<span>Sep  9</span>
+</li>
+<li>
+<a href="/articles/2014/09/06/review-confident-ruby-handling-failure/">review confident ruby(handling failure)</a>
+<span>Sep  6</span>
+</li>
+<li>
+<a href="/articles/2014/09/05/review-confident-ruby-delivering-results/">review confident ruby(delivering results)</a>
+<span>Sep  5</span>
+</li>
+<li>
+<a href="/articles/2014/09/04/review-confident-ruby-collecting-input/">review confident ruby(collecting input)</a>
+<span>Sep  4</span>
+</li>
+<li>
+<a href="/articles/2014/09/03/review-confident-ruby/">review confident ruby</a>
+<span>Sep  3</span>
+</li>
+<li>
+<a href="/articles/2014/08/23/developing-rails-app-using-docker-by-fig/">Developing Rails App Using Docker by fig</a>
+<span>Aug 23</span>
+</li>
+<li>
+<a href="/articles/2014/07/24/decision-tree/">Decision Tree</a>
+<span>Jul 24</span>
+</li>
+<li>
+<a href="/articles/2014/05/19/try-facebook-testing-lib-jest/">Try facebook testing lib Jest</a>
+<span>May 19</span>
+</li>
+<li>
+<a href="/articles/2014/03/27/reading-notes-of-a-rubymotion-book/">Reading notes of a rubymotion book</a>
+<span>Mar 27</span>
+</li>
+</ol>
+</dd>
+<dt>
+<h2>Tags</h2>
+</dt>
+<dd>
+<ol>
+<li>
+<a href="/tags/example/">example</a>
+(2)
+</li>
+<li>
+<a href="/tags/api/">api</a>
+(1)
+</li>
+<li>
+<a href="/tags/oauth/">oauth</a>
+(1)
+</li>
+<li>
+<a href="/tags/rest/">rest</a>
+(1)
+</li>
+<li>
+<a href="/tags/mobile/">mobile</a>
+(2)
+</li>
+<li>
+<a href="/tags/android/">android</a>
+(3)
+</li>
+<li>
+<a href="/tags/chrome/">chrome</a>
+(2)
+</li>
+<li>
+<a href="/tags/phonegap/">phonegap</a>
+(1)
+</li>
+<li>
+<a href="/tags/vim/">vim</a>
+(1)
+</li>
+<li>
+<a href="/tags/guard/">guard</a>
+(1)
+</li>
+<li>
+<a href="/tags/unix/">unix</a>
+(1)
+</li>
+<li>
+<a href="/tags/pipe/">pipe</a>
+(1)
+</li>
+<li>
+<a href="/tags/tmux/">tmux</a>
+(1)
+</li>
+<li>
+<a href="/tags/bootstrap/">bootstrap</a>
+(2)
+</li>
+<li>
+<a href="/tags/sass/">sass</a>
+(1)
+</li>
+<li>
+<a href="/tags/webrtc/">webrtc</a>
+(1)
+</li>
+<li>
+<a href="/tags/raspberrypi/">raspberrypi</a>
+(2)
+</li>
+<li>
+<a href="/tags/upstart/">upstart</a>
+(1)
+</li>
+<li>
+<a href="/tags/ruby/">ruby</a>
+(9)
+</li>
+<li>
+<a href="/tags/zeromq/">zeromq</a>
+(1)
+</li>
+<li>
+<a href="/tags/message_queue/">message_queue</a>
+(1)
+</li>
+<li>
+<a href="/tags/opencv/">opencv</a>
+(1)
+</li>
+<li>
+<a href="/tags/rubuto/">rubuto</a>
+(1)
+</li>
+<li>
+<a href="/tags/jruby/">jruby</a>
+(2)
+</li>
+<li>
+<a href="/tags/markdown/">markdown</a>
+(1)
+</li>
+<li>
+<a href="/tags/heroku/">heroku</a>
+(2)
+</li>
+<li>
+<a href="/tags/presentation/">presentation</a>
+(1)
+</li>
+<li>
+<a href="/tags/reveal-js/">reveal.js</a>
+(1)
+</li>
+<li>
+<a href="/tags/speedreading/">speedreading</a>
+(1)
+</li>
+<li>
+<a href="/tags/extension/">extension</a>
+(1)
+</li>
+<li>
+<a href="/tags/baas/">BaaS</a>
+(1)
+</li>
+<li>
+<a href="/tags/nodejs/">nodejs</a>
+(1)
+</li>
+<li>
+<a href="/tags/paas/">PaaS</a>
+(2)
+</li>
+<li>
+<a href="/tags/r/">R</a>
+(2)
+</li>
+<li>
+<a href="/tags/web/">web</a>
+(2)
+</li>
+<li>
+<a href="/tags/delegate/">delegate</a>
+(1)
+</li>
+<li>
+<a href="/tags/rtc/">rtc</a>
+(1)
+</li>
+<li>
+<a href="/tags/screencast/">screencast</a>
+(1)
+</li>
+<li>
+<a href="/tags/terminal/">terminal</a>
+(1)
+</li>
+<li>
+<a href="/tags/windows/">windows</a>
+(1)
+</li>
+<li>
+<a href="/tags/virtualbox/">virtualbox</a>
+(1)
+</li>
+<li>
+<a href="/tags/linux/">linux</a>
+(1)
+</li>
+<li>
+<a href="/tags/ruboto/">ruboto</a>
+(1)
+</li>
+<li>
+<a href="/tags/statics/">statics</a>
+(1)
+</li>
+<li>
+<a href="/tags/ios/">iOS</a>
+(1)
+</li>
+<li>
+<a href="/tags/rubymotion/">rubymotion</a>
+(2)
+</li>
+<li>
+<a href="/tags/promotion/">ProMotion</a>
+(1)
+</li>
+<li>
+<a href="/tags/teacup/">teacup</a>
+(1)
+</li>
+<li>
+<a href="/tags/javascript/">javascript</a>
+(1)
+</li>
+<li>
+<a href="/tags/coffeescript/">coffeescript</a>
+(1)
+</li>
+<li>
+<a href="/tags/testing/">testing</a>
+(1)
+</li>
+<li>
+<a href="/tags/elixir/">elixir</a>
+(1)
+</li>
+<li>
+<a href="/tags/practicingruby/">practicingruby</a>
+(1)
+</li>
+</ol>
+</dd>
+<dt>
+<h2>By Year</h2>
+</dt>
+<dd>
+<ol>
+<li>
+<a href="/2014/">2014</a>
+(31)
+</li>
+<li>
+<a href="/2013/">2013</a>
+(2)
+</li>
+<li>
+<a href="/2012/">2012</a>
+(1)
+</li>
+</ol>
+</dd>
+</dl>
+</div>
+</div>
+<div class='row'>
+<div class='col-xs-12 hidden-lg asider'>
+<dl class='well-lg content_box'>
+<dt>
+<h2>Recent Articles</h2>
+</dt>
+<dd>
+<ol>
+<li>
+<a href="/articles/2014/09/12/encoding-message/">encoding message</a>
+<span>Sep 12</span>
+</li>
+<li>
+<a href="/articles/2014/09/09/meet-elixir/">meet elixir</a>
+<span>Sep  9</span>
+</li>
+<li>
+<a href="/articles/2014/09/06/review-confident-ruby-handling-failure/">review confident ruby(handling failure)</a>
+<span>Sep  6</span>
+</li>
+<li>
+<a href="/articles/2014/09/05/review-confident-ruby-delivering-results/">review confident ruby(delivering results)</a>
+<span>Sep  5</span>
+</li>
+<li>
+<a href="/articles/2014/09/04/review-confident-ruby-collecting-input/">review confident ruby(collecting input)</a>
+<span>Sep  4</span>
+</li>
+<li>
+<a href="/articles/2014/09/03/review-confident-ruby/">review confident ruby</a>
+<span>Sep  3</span>
+</li>
+<li>
+<a href="/articles/2014/08/23/developing-rails-app-using-docker-by-fig/">Developing Rails App Using Docker by fig</a>
+<span>Aug 23</span>
+</li>
+<li>
+<a href="/articles/2014/07/24/decision-tree/">Decision Tree</a>
+<span>Jul 24</span>
+</li>
+<li>
+<a href="/articles/2014/05/19/try-facebook-testing-lib-jest/">Try facebook testing lib Jest</a>
+<span>May 19</span>
+</li>
+<li>
+<a href="/articles/2014/03/27/reading-notes-of-a-rubymotion-book/">Reading notes of a rubymotion book</a>
+<span>Mar 27</span>
+</li>
+</ol>
+</dd>
+<dt>
+<h2>Tags</h2>
+</dt>
+<dd>
+<ol>
+<li>
+<a href="/tags/example/">example</a>
+(2)
+</li>
+<li>
+<a href="/tags/api/">api</a>
+(1)
+</li>
+<li>
+<a href="/tags/oauth/">oauth</a>
+(1)
+</li>
+<li>
+<a href="/tags/rest/">rest</a>
+(1)
+</li>
+<li>
+<a href="/tags/mobile/">mobile</a>
+(2)
+</li>
+<li>
+<a href="/tags/android/">android</a>
+(3)
+</li>
+<li>
+<a href="/tags/chrome/">chrome</a>
+(2)
+</li>
+<li>
+<a href="/tags/phonegap/">phonegap</a>
+(1)
+</li>
+<li>
+<a href="/tags/vim/">vim</a>
+(1)
+</li>
+<li>
+<a href="/tags/guard/">guard</a>
+(1)
+</li>
+<li>
+<a href="/tags/unix/">unix</a>
+(1)
+</li>
+<li>
+<a href="/tags/pipe/">pipe</a>
+(1)
+</li>
+<li>
+<a href="/tags/tmux/">tmux</a>
+(1)
+</li>
+<li>
+<a href="/tags/bootstrap/">bootstrap</a>
+(2)
+</li>
+<li>
+<a href="/tags/sass/">sass</a>
+(1)
+</li>
+<li>
+<a href="/tags/webrtc/">webrtc</a>
+(1)
+</li>
+<li>
+<a href="/tags/raspberrypi/">raspberrypi</a>
+(2)
+</li>
+<li>
+<a href="/tags/upstart/">upstart</a>
+(1)
+</li>
+<li>
+<a href="/tags/ruby/">ruby</a>
+(9)
+</li>
+<li>
+<a href="/tags/zeromq/">zeromq</a>
+(1)
+</li>
+<li>
+<a href="/tags/message_queue/">message_queue</a>
+(1)
+</li>
+<li>
+<a href="/tags/opencv/">opencv</a>
+(1)
+</li>
+<li>
+<a href="/tags/rubuto/">rubuto</a>
+(1)
+</li>
+<li>
+<a href="/tags/jruby/">jruby</a>
+(2)
+</li>
+<li>
+<a href="/tags/markdown/">markdown</a>
+(1)
+</li>
+<li>
+<a href="/tags/heroku/">heroku</a>
+(2)
+</li>
+<li>
+<a href="/tags/presentation/">presentation</a>
+(1)
+</li>
+<li>
+<a href="/tags/reveal-js/">reveal.js</a>
+(1)
+</li>
+<li>
+<a href="/tags/speedreading/">speedreading</a>
+(1)
+</li>
+<li>
+<a href="/tags/extension/">extension</a>
+(1)
+</li>
+<li>
+<a href="/tags/baas/">BaaS</a>
+(1)
+</li>
+<li>
+<a href="/tags/nodejs/">nodejs</a>
+(1)
+</li>
+<li>
+<a href="/tags/paas/">PaaS</a>
+(2)
+</li>
+<li>
+<a href="/tags/r/">R</a>
+(2)
+</li>
+<li>
+<a href="/tags/web/">web</a>
+(2)
+</li>
+<li>
+<a href="/tags/delegate/">delegate</a>
+(1)
+</li>
+<li>
+<a href="/tags/rtc/">rtc</a>
+(1)
+</li>
+<li>
+<a href="/tags/screencast/">screencast</a>
+(1)
+</li>
+<li>
+<a href="/tags/terminal/">terminal</a>
+(1)
+</li>
+<li>
+<a href="/tags/windows/">windows</a>
+(1)
+</li>
+<li>
+<a href="/tags/virtualbox/">virtualbox</a>
+(1)
+</li>
+<li>
+<a href="/tags/linux/">linux</a>
+(1)
+</li>
+<li>
+<a href="/tags/ruboto/">ruboto</a>
+(1)
+</li>
+<li>
+<a href="/tags/statics/">statics</a>
+(1)
+</li>
+<li>
+<a href="/tags/ios/">iOS</a>
+(1)
+</li>
+<li>
+<a href="/tags/rubymotion/">rubymotion</a>
+(2)
+</li>
+<li>
+<a href="/tags/promotion/">ProMotion</a>
+(1)
+</li>
+<li>
+<a href="/tags/teacup/">teacup</a>
+(1)
+</li>
+<li>
+<a href="/tags/javascript/">javascript</a>
+(1)
+</li>
+<li>
+<a href="/tags/coffeescript/">coffeescript</a>
+(1)
+</li>
+<li>
+<a href="/tags/testing/">testing</a>
+(1)
+</li>
+<li>
+<a href="/tags/elixir/">elixir</a>
+(1)
+</li>
+<li>
+<a href="/tags/practicingruby/">practicingruby</a>
+(1)
+</li>
+</ol>
+</dd>
+<dt>
+<h2>By Year</h2>
+</dt>
+<dd>
+<ol>
+<li>
+<a href="/2014/">2014</a>
+(31)
+</li>
+<li>
+<a href="/2013/">2013</a>
+(2)
+</li>
+<li>
+<a href="/2012/">2012</a>
+(1)
+</li>
+</ol>
+</dd>
+</dl>
+</div>
+</div>
+
+</div>
+</div>
+</section>
+<footer>
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(["_setAccount", "UA-44086232-1"]);
+  _gaq.push(["_trackPageview"]);
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? '//ssl' : '//www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+</footer>
+</body>
+</html>

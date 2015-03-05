@@ -1,0 +1,241 @@
+<html>
+<head>
+<meta charset='utf-8'>
+<meta content='IE=edge;chrome=1' http-equiv='X-UA-Compatible'>
+<title>No Backend Development</title>
+<meta content='' name='description'>
+<meta content='width=device-width' name='viewport'>
+<link href='/css/normalize.css' rel='stylesheet'>
+<link href='/css/main.css' rel='stylesheet'>
+<link href='/css/bootstrap.min.css' rel='stylesheet'>
+<link href='/stylesheets/background.css' rel='stylesheet'>
+<link href='/stylesheets/article.css' rel='stylesheet'>
+<script src='/js/vendor/modernizr-2.6.1.min.js'></script>
+<script src='/js/vendor/jquery-1.8.0.min.js'></script>
+<script src='/js/bootstrap.min.js'></script>
+<link href="/stylesheets/rouge.css" rel="stylesheet" type="text/css" />
+<link href="/stylesheets/home.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<header>
+<nav class='navbar navbar-default' role='navigation'>
+<div class='navbar-header'>
+<button class='navbar-toggle' data-target='.navbar-ex1-collapse' data-toggle='collapse' type='button'>
+<span class='icon-bar'></span>
+<span class='icon-bar'></span>
+<span class='icon-bar'></span>
+</button>
+<a class='navbar-brand'></a>
+</div>
+<div class='collapse navbar-collapse navbar-ex1-collapse'>
+<ul class='nav navbar-nav'>
+<li>
+<a href='/'>Home</a>
+</li>
+<li>
+<a href='/feed.xml'>Feed</a>
+</li>
+<li>
+<a href='/about'>About</a>
+</li>
+</ul>
+</div>
+</nav>
+</header>
+<section class='main'>
+<div id='main' role='main'>
+<div class='container'>
+<article>
+<div class='title'>
+<h1 class='page-header text-center'>
+No Backend Development
+</h1>
+</div>
+<br>
+<h2>Backend As A Service</h2>
+
+<p>Recently I have used some Backend As A Service(BaaS) platform to make the
+development faster. How can it be faster than not doing. So for some very small
+demos, I tried firebase. It seems good. Only one thing is missing, it dont
+support to store an array. So everything must be an object.</p>
+
+<h2>Find an alternative solution</h2>
+
+<p>In order to achieve the following goal, I want to find another firebase like
+platform.</p>
+
+<ol>
+<li>Support array</li>
+<li>Can be privately hosted in own machines</li>
+<li>Can also hosted on some popular PaaS platform like heroku</li>
+<li>Open source project that we can dig into the code when we need</li>
+</ol>
+
+<p>I found the deployd is good, and although there is some issues when I issue
+some commands in the console. But other things works well at the first glance.</p>
+
+<h2>Deploy on heroku</h2>
+
+<p>Heroku is so wonderful platform that we can verify some idea very quickly by
+deploy a demo without any budget.</p>
+
+<p>Following is how to deploy deployd on heroku</p>
+
+<h3>setup a new heroku app</h3>
+<pre class="highlight shell"><code>
+heroku apps:create myawesomedeployd
+
+</code></pre>
+
+<p>Next, add mongodb resource</p>
+<pre class="highlight shell"><code>
+ heroku addons:add mongolab
+</code></pre>
+
+<p>Add heroku config files and the node.js script</p>
+<pre class="highlight shell"><code>
+<span class="c"># Procfile</span>
+web: node server
+
+</code></pre>
+<pre class="highlight javascript"><code>
+<span class="c1">// package.json </span>
+<span class="p">{</span>
+  <span class="s2">"name"</span><span class="err">:</span> <span class="s2">"app_name"</span><span class="p">,</span>
+  <span class="s2">"version"</span><span class="err">:</span> <span class="s2">"0.0.1"</span><span class="p">,</span>
+  <span class="s2">"description"</span><span class="err">:</span> <span class="s2">"Super awesome app"</span><span class="p">,</span>
+  <span class="s2">"keywords"</span><span class="err">:</span> <span class="p">[],</span>
+  <span class="s2">"homepage"</span><span class="err">:</span> <span class="s2">""</span><span class="p">,</span>
+  <span class="s2">"author"</span><span class="err">:</span> <span class="s2">"You!"</span><span class="p">,</span>
+  <span class="s2">"contributors"</span><span class="err">:</span> <span class="p">[],</span>
+  <span class="s2">"dependencies"</span><span class="err">:</span> <span class="p">{</span>
+    <span class="s2">"deployd"</span><span class="err">:</span> <span class="s2">"&gt;= 0"</span>
+  <span class="p">},</span>
+  <span class="s2">"scripts"</span><span class="err">:</span> <span class="p">{</span>
+    <span class="s2">"start"</span><span class="err">:</span> <span class="s2">"node server"</span>
+  <span class="p">},</span>
+  <span class="s2">"engines"</span><span class="err">:</span> <span class="p">{</span>
+    <span class="s2">"node"</span><span class="err">:</span> <span class="s2">"0.8.x"</span><span class="p">,</span>
+    <span class="s2">"npm"</span><span class="err">:</span>  <span class="s2">"1.2.x"</span>
+  <span class="p">},</span>
+  <span class="s2">"license"</span><span class="err">:</span> <span class="s2">"MIT"</span>
+<span class="p">}</span>
+
+
+<span class="c1">// server.js </span>
+
+<span class="c1">// require deployd</span>
+<span class="kd">var</span> <span class="nx">deployd</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">'deployd'</span><span class="p">);</span>
+<span class="c1">// configure database etc. </span>
+<span class="kd">var</span> <span class="nx">server</span> <span class="o">=</span> <span class="nx">deployd</span><span class="p">({</span>
+  <span class="na">port</span><span class="p">:</span> <span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">PORT</span> <span class="o">||</span> <span class="mi">5000</span><span class="p">,</span>
+  <span class="na">env</span><span class="p">:</span> <span class="s1">'production'</span><span class="p">,</span>
+  <span class="na">db</span><span class="p">:</span> <span class="p">{</span>
+    <span class="na">host</span><span class="p">:</span> <span class="s1">'host.mongolab.com'</span><span class="p">,</span>
+    <span class="na">port</span><span class="p">:</span> <span class="mi">33559</span><span class="p">,</span>
+    <span class="na">name</span><span class="p">:</span> <span class="s1">'heroku_app'</span><span class="p">,</span>
+    <span class="na">credentials</span><span class="p">:</span> <span class="p">{</span>
+      <span class="na">username</span><span class="p">:</span> <span class="s1">'heroku_app'</span><span class="p">,</span>
+      <span class="na">password</span><span class="p">:</span> <span class="s1">'password'</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+<span class="p">});</span>
+
+<span class="c1">// heroku requires these settings for sockets to work</span>
+<span class="nx">server</span><span class="p">.</span><span class="nx">sockets</span><span class="p">.</span><span class="nx">manager</span><span class="p">.</span><span class="nx">settings</span><span class="p">.</span><span class="nx">transports</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"xhr-polling"</span><span class="p">];</span>
+
+<span class="c1">// start the server</span>
+<span class="nx">server</span><span class="p">.</span><span class="nx">listen</span><span class="p">();</span>
+
+<span class="c1">// debug</span>
+<span class="nx">server</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">'listening'</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s2">"Server is listening on port: "</span> <span class="o">+</span> <span class="nx">process</span><span class="p">.</span><span class="nx">env</span><span class="p">.</span><span class="nx">PORT</span><span class="p">);</span>
+<span class="p">});</span>
+
+<span class="c1">// Deployd requires this</span>
+<span class="nx">server</span><span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">'error'</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">error</span><span class="p">(</span><span class="nx">err</span><span class="p">);</span>
+  <span class="nx">process</span><span class="p">.</span><span class="nx">nextTick</span><span class="p">(</span><span class="kd">function</span><span class="p">()</span> <span class="p">{</span> <span class="c1">// Give the server a chance to return an error</span>
+    <span class="nx">process</span><span class="p">.</span><span class="nx">exit</span><span class="p">();</span>
+  <span class="p">});</span>
+<span class="p">});</span>
+
+
+</code></pre>
+
+<h3>generate the keys for deployd</h3>
+<pre class="highlight shell"><code>
+mkdir .dpd
+touch .dpd/.gitemptydir
+git add .dpd/.gitemptydir
+dpd keygen
+dpd showkey
+
+</code></pre>
+
+<h3>create a resource directory to avoid node.js error</h3>
+
+<p>When running deployd, it could report:</p>
+<pre class="highlight shell"><code>
+deployd Error: ENOENT, readdir <span class="s1">'resources'</span>
+</code></pre>
+
+<p>Just need to commit an empty directory to avoid this error</p>
+<pre class="highlight shell"><code>
+mkdir resources
+touch resources/.gitemptydir
+git add <span class="k">*</span>
+git reset node_modules
+git commit -m <span class="s1">'add resources/\n'</span>
+
+</code></pre>
+
+<h3>Deploy to Heroku</h3>
+
+<p>Now just push to heroku</p>
+<pre class="highlight shell"><code>
+git push origin master
+</code></pre>
+
+<p>Then access from <a href="http://herokuhost.com/dashboard">http://herokuhost.com/dashboard</a></p>
+
+<h3>Connect to mongolab to check the data:</h3>
+<pre class="highlight shell"><code>
+mongo -u heroku_app2239 -p password_str --port 3355 --host
+ds033.mongolab.com heroku_app2239
+</code></pre>
+
+</article>
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+//<![CDATA[
+                  var disqus_shortname = 'zyncrochinadevblog';
+          
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+//]]>
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
+</div>
+</div>
+</section>
+<footer>
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(["_setAccount", "UA-44086232-1"]);
+  _gaq.push(["_trackPageview"]);
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? '//ssl' : '//www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+</footer>
+</body>
+</html>

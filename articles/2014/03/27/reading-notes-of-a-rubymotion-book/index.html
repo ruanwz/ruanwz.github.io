@@ -1,0 +1,134 @@
+<html>
+<head>
+<meta charset='utf-8'>
+<meta content='IE=edge;chrome=1' http-equiv='X-UA-Compatible'>
+<title>Reading notes of a rubymotion book</title>
+<meta content='' name='description'>
+<meta content='width=device-width' name='viewport'>
+<link href='/css/normalize.css' rel='stylesheet'>
+<link href='/css/main.css' rel='stylesheet'>
+<link href='/css/bootstrap.min.css' rel='stylesheet'>
+<link href='/stylesheets/background.css' rel='stylesheet'>
+<link href='/stylesheets/article.css' rel='stylesheet'>
+<script src='/js/vendor/modernizr-2.6.1.min.js'></script>
+<script src='/js/vendor/jquery-1.8.0.min.js'></script>
+<script src='/js/bootstrap.min.js'></script>
+<link href="/stylesheets/rouge.css" rel="stylesheet" type="text/css" />
+<link href="/stylesheets/home.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<header>
+<nav class='navbar navbar-default' role='navigation'>
+<div class='navbar-header'>
+<button class='navbar-toggle' data-target='.navbar-ex1-collapse' data-toggle='collapse' type='button'>
+<span class='icon-bar'></span>
+<span class='icon-bar'></span>
+<span class='icon-bar'></span>
+</button>
+<a class='navbar-brand'></a>
+</div>
+<div class='collapse navbar-collapse navbar-ex1-collapse'>
+<ul class='nav navbar-nav'>
+<li>
+<a href='/'>Home</a>
+</li>
+<li>
+<a href='/feed.xml'>Feed</a>
+</li>
+<li>
+<a href='/about'>About</a>
+</li>
+</ul>
+</div>
+</nav>
+</header>
+<section class='main'>
+<div id='main' role='main'>
+<div class='container'>
+<article>
+<div class='title'>
+<h1 class='page-header text-center'>
+Reading notes of a rubymotion book
+</h1>
+</div>
+<br>
+<h3>Use NSLog instead of puts</h3>
+
+<p>Because puts wouldn&rsquo;t output to device logs</p>
+
+<h3>RubyMotion provide help for 3 things</h3>
+
+<ol>
+<li>flexible workflow(editor, command line, repl)</li>
+<li>use ruby language</li>
+<li>skip the large set of new API have to learn</li>
+</ol>
+
+<h3>Value Object</h3>
+
+<p>There are 4 value object classes
+1. NSString
+1. NSNumber
+1. NSDate
+1. NSData( for byte buffers)</p>
+
+<h3>Major design patterns in iOS development</h3>
+
+<ol>
+<li>MVC(the main difference from rails is that working with user interactions
+and system events instead of HTTP requests)</li>
+<li>Delegation</li>
+<li>Protocols</li>
+<li>Notification Center(Pub/Sub)</li>
+<li>Target-Action</li>
+<li>Key-Value Observing(more Observers)</li>
+<li>View Hierarchy</li>
+<li>responder Chain</li>
+<li>Receptionist</li>
+</ol>
+
+<h3>MVC pattern</h3>
+
+<ol>
+<li>difference between iOS and Rails
+The main changes to controller and view layers in relation to events</li>
+<li>models are not alwasy database based</li>
+<li>view objects are inherit from UIView or NSView, and responsible for drawing
+theirselves and subviews. In the case of controls, handling user interaction
+and input, then tell the controller about it.</li>
+</ol>
+
+</article>
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+//<![CDATA[
+                  var disqus_shortname = 'zyncrochinadevblog';
+          
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+//]]>
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+
+</div>
+</div>
+</section>
+<footer>
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(["_setAccount", "UA-44086232-1"]);
+  _gaq.push(["_trackPageview"]);
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? '//ssl' : '//www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+</footer>
+</body>
+</html>

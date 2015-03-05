@@ -1,0 +1,1565 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Blog Name</title>
+  <subtitle>Blog subtitle</subtitle>
+  <id>http://blog.url.com/</id>
+  <link href="http://blog.url.com/"/>
+  <link href="http://blog.url.com/feed.xml" rel="self"/>
+  <updated>2014-09-12T09:45:00+08:00</updated>
+  <author>
+    <name>Blog Author</name>
+  </author>
+  <entry>
+    <title>encoding message</title>
+    <link rel="alternate" href="http://blog.url.com/articles/2014/09/12/encoding-message/"/>
+    <id>http://blog.url.com/articles/2014/09/12/encoding-message/</id>
+    <published>2014-09-12T09:45:00+08:00</published>
+    <updated>2015-03-05T23:43:35+08:00</updated>
+    <author>
+      <name>Article Author</name>
+    </author>
+    <content type="html">&lt;h2&gt;关于practicingruby&lt;/h2&gt;
+
+&lt;p&gt;practicingruby是Gregory
+Brown定期撰写的关于ruby编程的文章。很有深度，欢迎大家订阅。&lt;/p&gt;
+
+&lt;h2&gt;The anatomy of information in software systems&lt;/h2&gt;
+
+&lt;p&gt;9月份的文章是关于如何把消息编码。内容如下的IRC消息，应该如何解释&lt;/p&gt;
+&lt;pre class="highlight ruby"&gt;&lt;code&gt;
+&lt;span class="no"&gt;PRIVMSG&lt;/span&gt; &lt;span class="c1"&gt;#practicing ruby testing :Seasons greetings to you all!\r\n&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;在ruby里可以表示为&lt;/p&gt;
+&lt;pre class="highlight ruby"&gt;&lt;code&gt;
+&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;"PRIVMSG"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"#practicing ruby testing"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"Seasons greetings to you all!"&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3&gt;序列化为字符串&lt;/h3&gt;
+
+&lt;p&gt;使用&lt;a href="https://github.com/msgpack/msgpack/blob/master/spec.md"&gt;Msgpack&lt;/a&gt;序列化上面的消息,得到的HEX是&lt;/p&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;
+93 a7 50 52 49 56 4d 53 47 b8 23 70 72 61 63 74 69 63 69 6e 67 2d 72 75 62 
+79 2d 74 65 73 74 69 6e 67 bd 53 65 61 73 6f 6e 73 20 67 72 65 65 74 69 6e 
+67 73 20 74 6f 20 79 6f 75 20 61 6c 6c 21
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;In Ruby:&lt;/p&gt;
+&lt;pre class="highlight ruby"&gt;&lt;code&gt;
+&lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="se"&gt;\x93\xA7&lt;/span&gt;&lt;span class="s2"&gt;PRIVMSG&lt;/span&gt;&lt;span class="se"&gt;\xB8&lt;/span&gt;&lt;span class="s2"&gt;#practicing-ruby-testing&lt;/span&gt;&lt;span class="se"&gt;\xBD&lt;/span&gt;&lt;span class="s2"&gt;Seasons greetings to you all!"&lt;/span&gt;
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;分解它的结构得到：&lt;/p&gt;
+
+&lt;p&gt;&lt;img alt="Image" src="http://i.imgur.com/YAh5olr.png" /&gt;&lt;/p&gt;
+
+&lt;p&gt;其中93, A7, B8, BD有特定含义, 实际上A0到BF表示的是0到31 byte的string&lt;/p&gt;
+&lt;pre class="highlight ruby"&gt;&lt;code&gt;
+&lt;span class="o"&gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="mh"&gt;0xA7&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mh"&gt;0xA0&lt;/span&gt;
+&lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="mi"&gt;7&lt;/span&gt;
+&lt;span class="o"&gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="s2"&gt;"PRIVMSG"&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;size&lt;/span&gt;
+&lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="mi"&gt;7&lt;/span&gt;
+
+&lt;span class="o"&gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="mh"&gt;0xB8&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mh"&gt;0xA0&lt;/span&gt;
+&lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="mi"&gt;24&lt;/span&gt;
+&lt;span class="o"&gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="s2"&gt;"#practicing-ruby-testing"&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;size&lt;/span&gt;
+&lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="mi"&gt;24&lt;/span&gt;
+
+&lt;span class="o"&gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="mh"&gt;0xBD&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mh"&gt;0xA0&lt;/span&gt;
+&lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="mi"&gt;29&lt;/span&gt;
+&lt;span class="o"&gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="s2"&gt;"Seasons greetings to you all!"&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;size&lt;/span&gt;
+&lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="mi"&gt;29&lt;/span&gt;
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3&gt;结构化&lt;/h3&gt;
+
+&lt;p&gt;不仅是得到字符串数组，我们还要明确每个部分的意义，可以用MessagePack&amp;rsquo;s
+application-specific type&lt;/p&gt;
+
+&lt;p&gt;&lt;img alt="image" src="http://i.imgur.com/s3Rjgzz.png" /&gt;&lt;/p&gt;
+
+&lt;p&gt;分解后得到的是&lt;/p&gt;
+
+&lt;p&gt;&lt;img alt="image" src="http://i.imgur.com/AubaxCk.png" /&gt;&lt;/p&gt;
+
+&lt;p&gt;ruby decode 代码&lt;/p&gt;
+&lt;pre class="highlight ruby"&gt;&lt;code&gt;
+&lt;span class="n"&gt;data_types&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="no"&gt;CommandName&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="no"&gt;Parameter&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;3&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="no"&gt;MessageBody&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="n"&gt;command&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="no"&gt;MessagePackDecoder&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;unpack&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;raw_bytes&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;data_types&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="c1"&gt;#  [ CommandName &amp;lt;"PRIVMSG"&amp;gt;, &lt;/span&gt;
+&lt;span class="c1"&gt;#    Parameter   &amp;lt;"#practicing-ruby-testing"&amp;gt;, &lt;/span&gt;
+&lt;span class="c1"&gt;#    MessageBody &amp;lt;"Season greetings to you all!"&amp;gt; ]&lt;/span&gt;
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;handler decode的例子代码&lt;/p&gt;
+&lt;pre class="highlight ruby"&gt;&lt;code&gt;
+&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;Parameter&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;initialize&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;byte_array&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="vi"&gt;@text&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;byte_array&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;pack&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"C*"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+    &lt;span class="k"&gt;raise&lt;/span&gt; &lt;span class="no"&gt;ArgumentError&lt;/span&gt; &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="vi"&gt;@text&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;include?&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;" "&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+
+  &lt;span class="kp"&gt;attr_reader&lt;/span&gt; &lt;span class="ss"&gt;:text&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3&gt;使用语法规则定义结构&lt;/h3&gt;
+
+&lt;p&gt;上面的方法虽然让计算机容易理解消息的结构，但让人去理解就困难了。&lt;/p&gt;
+
+&lt;p&gt;如果使用Augmented Backus–Naur Form语法规则，可以表示如下&lt;/p&gt;
+&lt;pre class="highlight plaintext"&gt;&lt;code&gt;
+message    =  command [ params ] crlf
+command    =  1*letter / 3digit
+params     =  *14( SPACE middle ) [ SPACE ":" trailing ]
+           =/ 14( SPACE middle ) [ SPACE [ ":" ] trailing ]
+
+nospcrlfcl =  %x01-09 / %x0B-0C / %x0E-1F / %x21-39 / %x3B-FF
+                ; any octet except NUL, CR, LF, " " and ":"
+
+middle     =  nospcrlfcl *( ":" / nospcrlfcl )
+trailing   =  *( ":" / " " / nospcrlfcl )
+
+SPACE      =  %x20        ; space character
+crlf       =  %x0D %x0A   ; "carriage return" "linefeed"
+letter     =  %x41-5A / %x61-7A       ; A-Z / a-z
+digit      =  %x30-39                 ; 0-9
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;在ruby，我们用&lt;a href="https://github.com/mjackson/citrus"&gt;citrus&lt;/a&gt;&lt;/p&gt;
+&lt;pre class="highlight ruby"&gt;&lt;code&gt;&lt;span class="n"&gt;grammar&lt;/span&gt; &lt;span class="no"&gt;IRC&lt;/span&gt;
+  &lt;span class="n"&gt;rule&lt;/span&gt; &lt;span class="n"&gt;message&lt;/span&gt;
+    &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;command&lt;/span&gt; &lt;span class="n"&gt;params?&lt;/span&gt; &lt;span class="n"&gt;endline&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+      &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="ss"&gt;:command&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;capture&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="ss"&gt;:command&lt;/span&gt;&lt;span class="p"&gt;).&lt;/span&gt;&lt;span class="nf"&gt;value&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="ss"&gt;:params&lt;/span&gt;  &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;capture&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="ss"&gt;:params&lt;/span&gt;&lt;span class="p"&gt;).&lt;/span&gt;&lt;span class="nf"&gt;value&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+
+  &lt;span class="n"&gt;rule&lt;/span&gt; &lt;span class="n"&gt;command&lt;/span&gt;
+    &lt;span class="n"&gt;letters&lt;/span&gt; &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="n"&gt;three_digit_code&lt;/span&gt; 
+  &lt;span class="k"&gt;end&lt;/span&gt;
+
+  &lt;span class="n"&gt;rule&lt;/span&gt; &lt;span class="n"&gt;params&lt;/span&gt;
+    &lt;span class="p"&gt;(&lt;/span&gt; &lt;span class="p"&gt;((&lt;/span&gt;&lt;span class="n"&gt;space&lt;/span&gt; &lt;span class="n"&gt;middle&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="mi"&gt;14&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="mi"&gt;14&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;space&lt;/span&gt; &lt;span class="s2"&gt;":"&lt;/span&gt;&lt;span class="p"&gt;?&lt;/span&gt; &lt;span class="n"&gt;trailing&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="sc"&gt;?)&lt;/span&gt; &lt;span class="o"&gt;|&lt;/span&gt;
+      &lt;span class="p"&gt;((&lt;/span&gt;&lt;span class="n"&gt;space&lt;/span&gt; &lt;span class="n"&gt;middle&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="mi"&gt;14&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;space&lt;/span&gt; &lt;span class="s2"&gt;":"&lt;/span&gt; &lt;span class="n"&gt;trailing&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="sc"&gt;?)&lt;/span&gt; &lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+      &lt;span class="n"&gt;captures&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;fetch&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="ss"&gt;:middle&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;[])&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;captures&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;fetch&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="ss"&gt;:trailing&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;[])&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+
+  &lt;span class="n"&gt;rule&lt;/span&gt; &lt;span class="n"&gt;middle&lt;/span&gt;
+    &lt;span class="n"&gt;non_special&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;non_special&lt;/span&gt; &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="s2"&gt;":"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+
+  &lt;span class="n"&gt;rule&lt;/span&gt; &lt;span class="n"&gt;trailing&lt;/span&gt;
+    &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;non_special&lt;/span&gt; &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="n"&gt;space&lt;/span&gt; &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="s2"&gt;":"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;+&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+
+  &lt;span class="n"&gt;rule&lt;/span&gt; &lt;span class="n"&gt;letters&lt;/span&gt;
+    &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;zA&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="no"&gt;Z&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;&lt;span class="o"&gt;+&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+
+  &lt;span class="n"&gt;rule&lt;/span&gt; &lt;span class="n"&gt;three_digit_code&lt;/span&gt;
+    &lt;span class="sr"&gt;/\d{3}/&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="n"&gt;to_str&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;to_i&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+
+  &lt;span class="n"&gt;rule&lt;/span&gt; &lt;span class="n"&gt;non_special&lt;/span&gt;
+    &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="o"&gt;^&lt;/span&gt;&lt;span class="p"&gt;\&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;:\&lt;/span&gt;&lt;span class="n"&gt;r&lt;/span&gt;&lt;span class="p"&gt;\&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt; &lt;span class="p"&gt;]&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+
+  &lt;span class="n"&gt;rule&lt;/span&gt; &lt;span class="n"&gt;space&lt;/span&gt;
+    &lt;span class="s2"&gt;" "&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+
+  &lt;span class="n"&gt;rule&lt;/span&gt; &lt;span class="n"&gt;endline&lt;/span&gt;
+    &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="se"&gt;\r\n&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+
+
+&lt;span class="nb"&gt;require&lt;/span&gt; &lt;span class="s1"&gt;'citrus'&lt;/span&gt;
+&lt;span class="no"&gt;Citrus&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;load&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;'irc'&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="n"&gt;msg&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;"PRIVMSG #practicing-ruby-testing :Seasons greetings to you all!&lt;/span&gt;&lt;span class="se"&gt;\r\n&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;
+
+&lt;span class="n"&gt;data&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="no"&gt;IRC&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;parse&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;msg&lt;/span&gt;&lt;span class="p"&gt;).&lt;/span&gt;&lt;span class="nf"&gt;value&lt;/span&gt;
+
+&lt;span class="nb"&gt;p&lt;/span&gt; &lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="ss"&gt;:command&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; 
+&lt;span class="c1"&gt;#=&amp;gt; "PRIVMSG"&lt;/span&gt;
+
+&lt;span class="nb"&gt;p&lt;/span&gt; &lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="ss"&gt;:params&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;span class="c1"&gt;#=&amp;gt; ["#practicing-ruby-testing", "Seasons greetings to you all!"]&lt;/span&gt;
+
+&lt;/code&gt;&lt;/pre&gt;
+</content>
+  </entry>
+  <entry>
+    <title>meet elixir</title>
+    <link rel="alternate" href="http://blog.url.com/articles/2014/09/09/meet-elixir/"/>
+    <id>http://blog.url.com/articles/2014/09/09/meet-elixir/</id>
+    <published>2014-09-09T12:21:00+08:00</published>
+    <updated>2015-03-05T23:43:35+08:00</updated>
+    <author>
+      <name>Article Author</name>
+    </author>
+    <content type="html">&lt;h2&gt;Meet Elixir ScreenCast&lt;/h2&gt;
+
+&lt;p&gt;Elixir马上就要发布1.0版，估计以后的语法不会有大的改动了。&lt;/p&gt;
+
+&lt;p&gt;看Elixir的书和screencast的其中一个问题是等到你看的时候，Elixir的语法已经和制作书和screencast时的语法不一样了。&lt;/p&gt;
+
+&lt;p&gt;最近看了Meet Elixir，并把screencast里的例子更新到使用最新的Elixir版本(0.15.1)。放在
+&lt;a href="https://github.com/ruanwz/mystreamers"&gt;https://github.com/ruanwz/mystreamers&lt;/a&gt;&lt;/p&gt;
+</content>
+  </entry>
+  <entry>
+    <title>review confident ruby(handling failure)</title>
+    <link rel="alternate" href="http://blog.url.com/articles/2014/09/06/review-confident-ruby-handling-failure/"/>
+    <id>http://blog.url.com/articles/2014/09/06/review-confident-ruby-handling-failure/</id>
+    <published>2014-09-06T14:19:00+08:00</published>
+    <updated>2015-03-05T23:43:35+08:00</updated>
+    <author>
+      <name>Article Author</name>
+    </author>
+    <content type="html">&lt;h2&gt;介绍 Handling Failure&lt;/h2&gt;
+
+&lt;p&gt;自信地处理错误情况。这本书只讨论BRE(begin/rescue/end) block,因为BRE在代码里是如此醒目,
+会把注意力引离method要做的事，所以需要想办法不要让它出现在程序的主要逻辑里。&lt;/p&gt;
+
+&lt;h2&gt;Handling Failure的模式&lt;/h2&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Prefer top-level rescue clause&lt;/li&gt;
+&lt;li&gt;Use checked methods for risky operations&lt;/li&gt;
+&lt;li&gt;Use bouncer methods&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h3&gt;Prefer top-level rescue clause&lt;/h3&gt;
+
+&lt;p&gt;当代码里有begin/rescue/end block时，应尽量使用top level的形式,
+这样可以清晰地划分出happy path和错误处理部分。&lt;/p&gt;
+&lt;pre class="highlight ruby"&gt;&lt;code&gt;
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;bar&lt;/span&gt;
+  &lt;span class="c1"&gt;# happy path goes up here&lt;/span&gt;
+&lt;span class="k"&gt;rescue&lt;/span&gt; &lt;span class="c1"&gt;#---------------------------&lt;/span&gt;
+  &lt;span class="c1"&gt;# failure scenarios go down here&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3&gt;Use checked methods for risky operations&lt;/h3&gt;
+
+&lt;p&gt;如果一个method里包含需要处理从lib或system
+call的调用出现的错误，那么应该单独写一个函数把它包住,并处理可能出现的异常，这样可以避免重复处理底层的异常&lt;/p&gt;
+&lt;pre class="highlight ruby"&gt;&lt;code&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;filter_through_pipe&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;command&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;message&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="n"&gt;results&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kp"&gt;nil&lt;/span&gt;
+  &lt;span class="no"&gt;IO&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;popen&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;command&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"w+"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;do&lt;/span&gt; &lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="n"&gt;process&lt;/span&gt;&lt;span class="o"&gt;|&lt;/span&gt;
+    &lt;span class="n"&gt;results&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;begin&lt;/span&gt;
+      &lt;span class="n"&gt;process&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;write&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;message&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+      &lt;span class="n"&gt;process&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;close_write&lt;/span&gt;
+      &lt;span class="n"&gt;process&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;read&lt;/span&gt;
+    &lt;span class="k"&gt;rescue&lt;/span&gt; &lt;span class="no"&gt;Errno&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="no"&gt;EPIPE&lt;/span&gt;
+      &lt;span class="n"&gt;message&lt;/span&gt;
+    &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="n"&gt;results&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;可以用&amp;ldquo;Receive policies instead of data&amp;quot;模式重构为&lt;/p&gt;
+&lt;pre class="highlight ruby"&gt;&lt;code&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;checked_popen&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;command&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;mode&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;error_policy&lt;/span&gt;&lt;span class="o"&gt;=-&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="k"&gt;raise&lt;/span&gt;&lt;span class="p"&gt;})&lt;/span&gt;
+  &lt;span class="no"&gt;IO&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;popen&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;command&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;mode&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;do&lt;/span&gt; &lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="n"&gt;process&lt;/span&gt;&lt;span class="o"&gt;|&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="k"&gt;yield&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;process&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+&lt;span class="k"&gt;rescue&lt;/span&gt; &lt;span class="no"&gt;Errno&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="no"&gt;EPIPE&lt;/span&gt;
+  &lt;span class="n"&gt;error_policy&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;call&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;filter_through_pipe&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;command&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;message&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="n"&gt;checked_popen&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;command&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"w+"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="n"&gt;message&lt;/span&gt;&lt;span class="p"&gt;})&lt;/span&gt; &lt;span class="k"&gt;do&lt;/span&gt; &lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="n"&gt;process&lt;/span&gt;&lt;span class="o"&gt;|&lt;/span&gt;
+    &lt;span class="n"&gt;process&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;write&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;message&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;process&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;close_write&lt;/span&gt;
+    &lt;span class="n"&gt;process&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;read&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3&gt;Use bouncer methods&lt;/h3&gt;
+</content>
+  </entry>
+  <entry>
+    <title>review confident ruby(delivering results)</title>
+    <link rel="alternate" href="http://blog.url.com/articles/2014/09/05/review-confident-ruby-delivering-results/"/>
+    <id>http://blog.url.com/articles/2014/09/05/review-confident-ruby-delivering-results/</id>
+    <published>2014-09-05T21:44:00+08:00</published>
+    <updated>2015-03-05T23:43:35+08:00</updated>
+    <author>
+      <name>Article Author</name>
+    </author>
+    <content type="html">&lt;h2&gt;介绍 Delivering Results&lt;/h2&gt;
+
+&lt;p&gt;为method的caller提供output&lt;/p&gt;
+
+&lt;h2&gt;Delivering Results的模式&lt;/h2&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Write total functions&lt;/li&gt;
+&lt;li&gt;Call back instead of returning&lt;/li&gt;
+&lt;li&gt;Represent failure with benign value&lt;/li&gt;
+&lt;li&gt;Represent failure with a special case object&lt;/li&gt;
+&lt;li&gt;Return a status object&lt;/li&gt;
+&lt;li&gt;Yield a status object&lt;/li&gt;
+&lt;li&gt;Signal early termination with throw&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h3&gt;Write total functions&lt;/h3&gt;
+
+&lt;p&gt;当method可以有0，1或多个返回值时，应该都返回一个(有可能长度为0)collection，
+这样使得处理结果时不需要考虑特殊情况&lt;/p&gt;
+&lt;pre class="highlight ruby"&gt;&lt;code&gt;
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;find_words&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;prefix&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="p"&gt;[]&lt;/span&gt; &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;prefix&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;empty?&lt;/span&gt;
+  &lt;span class="n"&gt;magic_words&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="sx"&gt;%w[klaatu barada nikto xyzzy plugh]&lt;/span&gt;
+  &lt;span class="n"&gt;words&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="no"&gt;File&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;readlines&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;'/usr/share/dict/words'&lt;/span&gt;&lt;span class="p"&gt;).&lt;/span&gt;
+    &lt;span class="nf"&gt;map&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="ss"&gt;:chomp&lt;/span&gt;&lt;span class="p"&gt;).&lt;/span&gt;&lt;span class="nf"&gt;reject&lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="n"&gt;w&lt;/span&gt;&lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="n"&gt;w&lt;/span&gt; &lt;span class="o"&gt;=~&lt;/span&gt; &lt;span class="sr"&gt;/'/&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;
+  &lt;span class="n"&gt;result&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;magic_words&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;include?&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;prefix&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;?&lt;/span&gt; &lt;span class="n"&gt;prefix&lt;/span&gt; &lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="n"&gt;words&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;select&lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="n"&gt;w&lt;/span&gt;&lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="n"&gt;w&lt;/span&gt; &lt;span class="o"&gt;=~&lt;/span&gt; &lt;span class="sr"&gt;/\A&lt;/span&gt;&lt;span class="si"&gt;#{&lt;/span&gt;&lt;span class="n"&gt;prefix&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="sr"&gt;/&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;
+  &lt;span class="no"&gt;Array&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+&lt;span class="n"&gt;find_words&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;'xyzzy'&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="c1"&gt;# =&amp;gt; ["xyzzy"]&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3&gt;Call back instead of returning&lt;/h3&gt;
+&lt;pre class="highlight ruby"&gt;&lt;code&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;import_purchase&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;date&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;title&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;user_email&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;import_callback&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="n"&gt;user&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="no"&gt;User&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;find_by_email&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;user_email&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="k"&gt;unless&lt;/span&gt; &lt;span class="n"&gt;user&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;purchased_titles&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;include?&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;title&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;purchase&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;user&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;purchases&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;create&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="ss"&gt;title: &lt;/span&gt;&lt;span class="n"&gt;title&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="ss"&gt;purchased_at: &lt;/span&gt;&lt;span class="n"&gt;date&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;import_callback&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;call&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;user&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;purchase&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+&lt;span class="c1"&gt;# ...&lt;/span&gt;
+&lt;span class="n"&gt;import_purchase&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;date&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;title&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;user_email&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;do&lt;/span&gt; &lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="n"&gt;user&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;purchase&lt;/span&gt;&lt;span class="o"&gt;|&lt;/span&gt;
+  &lt;span class="n"&gt;send_book_invitation_email&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;user&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;email&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;purchase&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;title&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+&lt;span class="c1"&gt;# ...&lt;/span&gt;
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3&gt;Represent failure with benign value&lt;/h3&gt;
+&lt;pre class="highlight ruby"&gt;&lt;code&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;render_sidebar&lt;/span&gt;
+  &lt;span class="n"&gt;html&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;""&lt;/span&gt;
+  &lt;span class="n"&gt;html&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class="s2"&gt;"&amp;lt;h4&amp;gt;What we're thinking about...&amp;lt;/h4&amp;gt;"&lt;/span&gt;
+  &lt;span class="n"&gt;html&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class="s2"&gt;"&amp;lt;div id='tweets'&amp;gt;"&lt;/span&gt;
+  &lt;span class="n"&gt;html&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class="n"&gt;latest_tweets&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="n"&gt;html&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class="s2"&gt;"&amp;lt;/div&amp;gt;"&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;latest_tweets&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;number&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="c1"&gt;# ...fetch tweets...&lt;/span&gt;
+  &lt;span class="k"&gt;rescue&lt;/span&gt; &lt;span class="no"&gt;Net&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="no"&gt;HTTPError&lt;/span&gt;
+    &lt;span class="s2"&gt;""&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3&gt;Represent failure with a special case object&lt;/h3&gt;
+
+&lt;p&gt;同上一章里的 Represent special cases as objects&lt;/p&gt;
+
+&lt;h3&gt;Return a status object&lt;/h3&gt;
+
+&lt;p&gt;command
+method的输出可能多种情况，不仅仅是success/failure,这时要把输出表示为status
+object&lt;/p&gt;
+&lt;pre class="highlight ruby"&gt;&lt;code&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;ImportStatus&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nc"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;success&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="kp"&gt;new&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="ss"&gt;:success&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nc"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;redundant&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="kp"&gt;new&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="ss"&gt;:redundant&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nc"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;failed&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;error&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="kp"&gt;new&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="ss"&gt;:failed&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;error&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="kp"&gt;attr_reader&lt;/span&gt; &lt;span class="ss"&gt;:error&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;initialize&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;status&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;error&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="kp"&gt;nil&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="vi"&gt;@status&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;status&lt;/span&gt;
+    &lt;span class="vi"&gt;@error&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;error&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;success?&lt;/span&gt;
+    &lt;span class="vi"&gt;@status&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="ss"&gt;:success&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;redundant?&lt;/span&gt;
+    &lt;span class="vi"&gt;@status&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="ss"&gt;:redundant&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;failed?&lt;/span&gt;
+    &lt;span class="vi"&gt;@status&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="ss"&gt;:error&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;import_purchase&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;date&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;title&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;user_email&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="n"&gt;user&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="no"&gt;User&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;find_by_email&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;user_email&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;user&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;purchased_titles&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;include?&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;title&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="no"&gt;ImportStatus&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;redundant&lt;/span&gt;
+  &lt;span class="k"&gt;else&lt;/span&gt;
+    &lt;span class="n"&gt;purchase&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;user&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;purchases&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;create&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="ss"&gt;title: &lt;/span&gt;&lt;span class="n"&gt;title&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="ss"&gt;purchased_at: &lt;/span&gt;&lt;span class="n"&gt;date&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="no"&gt;ImportStatus&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;success&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+&lt;span class="k"&gt;rescue&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;error&lt;/span&gt;
+    &lt;span class="no"&gt;ImportStatus&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;failed&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;error&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+
+&lt;span class="n"&gt;result&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;import_purchase&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;date&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;title&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;user_email&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;success?&lt;/span&gt;
+  &lt;span class="n"&gt;send_book_invitation_email&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;user_email&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;title&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;elsif&lt;/span&gt; &lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;redundant?&lt;/span&gt;
+  &lt;span class="n"&gt;logger&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;info&lt;/span&gt; &lt;span class="s2"&gt;"Skipped &lt;/span&gt;&lt;span class="si"&gt;#{&lt;/span&gt;&lt;span class="n"&gt;title&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s2"&gt; for &lt;/span&gt;&lt;span class="si"&gt;#{&lt;/span&gt;&lt;span class="n"&gt;user_email&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;
+&lt;span class="k"&gt;else&lt;/span&gt;
+  &lt;span class="n"&gt;logger&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;error&lt;/span&gt; &lt;span class="s2"&gt;"Error importing &lt;/span&gt;&lt;span class="si"&gt;#{&lt;/span&gt;&lt;span class="n"&gt;title&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s2"&gt; for &lt;/span&gt;&lt;span class="si"&gt;#{&lt;/span&gt;&lt;span class="n"&gt;user_email&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;: &lt;/span&gt;&lt;span class="si"&gt;#{&lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;error&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3&gt;Yield a status object&lt;/h3&gt;
+
+&lt;p&gt;当一个command
+method可能有多个输出，不仅仅是success/failure,我们不想它返回值，
+我们可以把method的输出表示为一个带有callback style mehtods的status
+object,并在caller yield 这个object&lt;/p&gt;
+&lt;pre class="highlight ruby"&gt;&lt;code&gt;&lt;span class="n"&gt;result&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;import_purchase&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;date&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;title&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;user_email&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;success?&lt;/span&gt;
+  &lt;span class="n"&gt;send_book_invitation_email&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;user_email&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;title&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;elsif&lt;/span&gt; &lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;redundant?&lt;/span&gt;
+  &lt;span class="n"&gt;logger&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;info&lt;/span&gt; &lt;span class="s2"&gt;"Skipped &lt;/span&gt;&lt;span class="si"&gt;#{&lt;/span&gt;&lt;span class="n"&gt;title&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s2"&gt; for &lt;/span&gt;&lt;span class="si"&gt;#{&lt;/span&gt;&lt;span class="n"&gt;user_email&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;
+&lt;span class="k"&gt;else&lt;/span&gt;
+  &lt;span class="n"&gt;logger&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;error&lt;/span&gt; &lt;span class="s2"&gt;"Error importing &lt;/span&gt;&lt;span class="si"&gt;#{&lt;/span&gt;&lt;span class="n"&gt;title&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s2"&gt; for &lt;/span&gt;&lt;span class="si"&gt;#{&lt;/span&gt;&lt;span class="n"&gt;user_email&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;: &lt;/span&gt;&lt;span class="si"&gt;#{&lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;error&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;上面的代码有2个问题:&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;违反了 Command/Query Separation(CQS)原理，command不应返回值。&lt;/li&gt;
+&lt;li&gt;而且不再能使用batch的方式，要使用batch的方式，我们必须先收集所有status
+object到数组里，再迭代。&lt;/li&gt;
+&lt;/ol&gt;
+&lt;pre class="highlight ruby"&gt;&lt;code&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;ImportStatus&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nc"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;success&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="kp"&gt;new&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="ss"&gt;:success&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nc"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;redundant&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="kp"&gt;new&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="ss"&gt;:redundant&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nc"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;failed&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;error&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="kp"&gt;new&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="ss"&gt;:failed&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;error&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="kp"&gt;attr_reader&lt;/span&gt; &lt;span class="ss"&gt;:error&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;initialize&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;status&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;error&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="kp"&gt;nil&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="vi"&gt;@status&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;status&lt;/span&gt;
+    &lt;span class="vi"&gt;@error&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;error&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;on_success&lt;/span&gt;
+    &lt;span class="k"&gt;yield&lt;/span&gt; &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="vi"&gt;@status&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="ss"&gt;:success&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;on_redundant&lt;/span&gt;
+    &lt;span class="k"&gt;yield&lt;/span&gt; &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="vi"&gt;@status&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="ss"&gt;:redundant&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;on_failed&lt;/span&gt;
+    &lt;span class="k"&gt;yield&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;error&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="vi"&gt;@status&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="ss"&gt;:error&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;import_purchase&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;date&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;title&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;user_email&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="n"&gt;user&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="no"&gt;User&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;find_by_email&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;user_email&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;user&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;purchased_titles&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;include?&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;title&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;yield&lt;/span&gt; &lt;span class="no"&gt;ImportStatus&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;redundant&lt;/span&gt;
+  &lt;span class="k"&gt;else&lt;/span&gt;
+    &lt;span class="n"&gt;purchase&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;user&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;purchases&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;create&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="ss"&gt;title: &lt;/span&gt;&lt;span class="n"&gt;title&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="ss"&gt;purchased_at: &lt;/span&gt;&lt;span class="n"&gt;date&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;yield&lt;/span&gt; &lt;span class="no"&gt;ImportStatus&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;success&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+&lt;span class="k"&gt;rescue&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;error&lt;/span&gt;
+  &lt;span class="k"&gt;yield&lt;/span&gt; &lt;span class="no"&gt;ImportStatus&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;failed&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;error&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+
+&lt;span class="n"&gt;import_purchase&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;date&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;title&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;user_email&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;do&lt;/span&gt; &lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="o"&gt;|&lt;/span&gt;
+  &lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;on_success&lt;/span&gt; &lt;span class="k"&gt;do&lt;/span&gt;
+    &lt;span class="n"&gt;send_book_invitation_email&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;user_email&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;title&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;on_redundant&lt;/span&gt; &lt;span class="k"&gt;do&lt;/span&gt;
+    &lt;span class="n"&gt;logger&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;info&lt;/span&gt; &lt;span class="s2"&gt;"Skipped &lt;/span&gt;&lt;span class="si"&gt;#{&lt;/span&gt;&lt;span class="n"&gt;title&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s2"&gt; for &lt;/span&gt;&lt;span class="si"&gt;#{&lt;/span&gt;&lt;span class="n"&gt;user_email&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;on_error&lt;/span&gt; &lt;span class="k"&gt;do&lt;/span&gt; &lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="n"&gt;error&lt;/span&gt;&lt;span class="o"&gt;|&lt;/span&gt;
+    &lt;span class="n"&gt;logger&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;error&lt;/span&gt; &lt;span class="s2"&gt;"Error importing &lt;/span&gt;&lt;span class="si"&gt;#{&lt;/span&gt;&lt;span class="n"&gt;title&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s2"&gt; for &lt;/span&gt;&lt;span class="si"&gt;#{&lt;/span&gt;&lt;span class="n"&gt;user_email&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;: &lt;/span&gt;&lt;span class="si"&gt;#{&lt;/span&gt;&lt;span class="n"&gt;error&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3&gt;Signal early termination with throw&lt;/h3&gt;
+</content>
+  </entry>
+  <entry>
+    <title>review confident ruby(collecting input)</title>
+    <link rel="alternate" href="http://blog.url.com/articles/2014/09/04/review-confident-ruby-collecting-input/"/>
+    <id>http://blog.url.com/articles/2014/09/04/review-confident-ruby-collecting-input/</id>
+    <published>2014-09-04T12:38:00+08:00</published>
+    <updated>2015-03-05T23:43:35+08:00</updated>
+    <author>
+      <name>Article Author</name>
+    </author>
+    <content type="html">&lt;h2&gt;介绍 Collecting Input&lt;/h2&gt;
+
+&lt;p&gt;method需要input，当决定好method的算法所需要的input，我们需要决定如何获取input。
+有3种策略用于确保方法有可靠的collaborators来执行他们的role&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Coerce objects into the roles we need them to play.&lt;/li&gt;
+&lt;li&gt;Reject unexpected values which cannot play the needed roles.&lt;/li&gt;
+&lt;li&gt;Substitute known-good objects for unacceptable inputs.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;要记住只在边界做collectiing input,不要在method内部做。&lt;/p&gt;
+
+&lt;h2&gt;Collecting Input的模式&lt;/h2&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Use built-in conversion protocols&lt;/li&gt;
+&lt;li&gt;Conditionally call conversion methods&lt;/li&gt;
+&lt;li&gt;Define your own conversion protocols&lt;/li&gt;
+&lt;li&gt;Define conversions to user-defined types&lt;/li&gt;
+&lt;li&gt;Use built-in conversion functions&lt;/li&gt;
+&lt;li&gt;Use Array() conversion function to array-ify inputs&lt;/li&gt;
+&lt;li&gt;Define conversion function&lt;/li&gt;
+&lt;li&gt;Replace &amp;ldquo;string typing&amp;rdquo; with classes&lt;/li&gt;
+&lt;li&gt;Wrap collaborators in Adapters&lt;/li&gt;
+&lt;li&gt;Use transparent adapters to gradually introduce abstraction&lt;/li&gt;
+&lt;li&gt;Reject unworkable values with preconditions&lt;/li&gt;
+&lt;li&gt;Use #fetch to asset the presence of Hash keys&lt;/li&gt;
+&lt;li&gt;Use #fetch for defaults&lt;/li&gt;
+&lt;li&gt;Document assumptions with assertions&lt;/li&gt;
+&lt;li&gt;Handle special cases with Guard Clause&lt;/li&gt;
+&lt;li&gt;Represent special cases as objects&lt;/li&gt;
+&lt;li&gt;Represent do-nothing cases as null objects&lt;/li&gt;
+&lt;li&gt;Substitute a benign value for nil&lt;/li&gt;
+&lt;li&gt;Use symbols as placeholder objects&lt;/li&gt;
+&lt;li&gt;Bundle arguments into parameter objects&lt;/li&gt;
+&lt;li&gt;Yield a parameter builder object&lt;/li&gt;
+&lt;li&gt;Receive policies instead of data&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h3&gt;Use built-in conversion protocols&lt;/h3&gt;
+
+&lt;p&gt;当需要确保input是特定类型，
+使用Ruby定义好的conversion protocols, 如&lt;/p&gt;
+&lt;pre class="highlight ruby"&gt;&lt;code&gt;&lt;span class="c1"&gt;#to_str&lt;/span&gt;
+&lt;span class="c1"&gt;#to_i&lt;/span&gt;
+&lt;span class="c1"&gt;#to_path&lt;/span&gt;
+&lt;span class="c1"&gt;#to_ary&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;这样可以确保类型的同时提高灵活性&lt;/p&gt;
+
+&lt;h4&gt;standard conversion methods&lt;/h4&gt;
+
+&lt;table&gt;&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Method&lt;/th&gt;
+&lt;th&gt;Target Class&lt;/th&gt;
+&lt;th&gt;Type&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;#to_a&lt;/td&gt;
+&lt;td&gt;Array&lt;/td&gt;
+&lt;td&gt;Explicit&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;#to_ary&lt;/td&gt;
+&lt;td&gt;Array&lt;/td&gt;
+&lt;td&gt;Implicit&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;#to_c&lt;/td&gt;
+&lt;td&gt;Complex&lt;/td&gt;
+&lt;td&gt;Explicit&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;#to_enum&lt;/td&gt;
+&lt;td&gt;Enumerator&lt;/td&gt;
+&lt;td&gt;Explicit&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;#to_h&lt;/td&gt;
+&lt;td&gt;Hash&lt;/td&gt;
+&lt;td&gt;Explicit&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;#to_hash&lt;/td&gt;
+&lt;td&gt;Hash&lt;/td&gt;
+&lt;td&gt;Implicit&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;#to_i&lt;/td&gt;
+&lt;td&gt;Integer&lt;/td&gt;
+&lt;td&gt;Explicit&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;#to_int&lt;/td&gt;
+&lt;td&gt;Integer&lt;/td&gt;
+&lt;td&gt;Implicit&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;#to_io&lt;/td&gt;
+&lt;td&gt;IO&lt;/td&gt;
+&lt;td&gt;Implicit&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;#to_open&lt;/td&gt;
+&lt;td&gt;IO&lt;/td&gt;
+&lt;td&gt;Implicit&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;#to_path&lt;/td&gt;
+&lt;td&gt;String&lt;/td&gt;
+&lt;td&gt;Implicit&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;#to_proc&lt;/td&gt;
+&lt;td&gt;Proc&lt;/td&gt;
+&lt;td&gt;Implicit&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;#to_r&lt;/td&gt;
+&lt;td&gt;Rational&lt;/td&gt;
+&lt;td&gt;Explicit&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;#to_regexp&lt;/td&gt;
+&lt;td&gt;Regexp&lt;/td&gt;
+&lt;td&gt;Implicit&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;#to_s&lt;/td&gt;
+&lt;td&gt;String&lt;/td&gt;
+&lt;td&gt;Explicit&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;#to_str&lt;/td&gt;
+&lt;td&gt;String&lt;/td&gt;
+&lt;td&gt;Implicit&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;#to_sym&lt;/td&gt;
+&lt;td&gt;Symbol&lt;/td&gt;
+&lt;td&gt;Implicit&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;&lt;/table&gt;
+
+&lt;p&gt;Implicit 和 Explicit
+区别在于，如果定义了实际上是String的类，比如ArticleTitle,那么就应该定义Implicit #to_str,来告诉Ruby
+core class接受并转为真正的String类&lt;/p&gt;
+&lt;pre class="highlight ruby"&gt;&lt;code&gt;&lt;span class="s2"&gt;"hello, "&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;article_title&lt;/span&gt; &lt;span class="c1"&gt;# =&amp;gt; "hello, my title"&lt;/span&gt;
+&lt;span class="s2"&gt;"the time is now: "&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="no"&gt;Time&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;now&lt;/span&gt; &lt;span class="c1"&gt;# =&amp;gt;&lt;/span&gt;
+&lt;span class="c1"&gt;# ~&amp;gt; -:1:in `+': can't convert Time into String (TypeError)&lt;/span&gt;
+&lt;span class="c1"&gt;# ~&amp;gt;&lt;/span&gt;
+&lt;span class="n"&gt;from&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="ss"&gt;:in&lt;/span&gt; &lt;span class="sb"&gt;`&amp;lt;main&amp;gt;'
+
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Explicit是用于获取文字的表示形式, 如to_s&lt;/p&gt;
+
+&lt;p&gt;Implicit也可以作为assert来用，确保input的类型&lt;/p&gt;
+
+&lt;h3&gt;Conditionally call conversion methods&lt;/h3&gt;
+
+&lt;p&gt;使用respond_to?来决定input是否调用conversion method,
+既检查了input，也可扩展其他的类型&lt;/p&gt;
+&lt;pre class="highlight ruby"&gt;&lt;code&gt;
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;my_open&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;filename&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;filename&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;filename&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;to_path&lt;/span&gt; &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;filename&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;respond_to?&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="ss"&gt;:to_path&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="c1"&gt;# 这里用to_str, 因为我们不仅是获得它的文字表示形式,&lt;/span&gt;
+&lt;span class="c1"&gt;# 还要检查输入是不是String或可转化为String的对象&lt;/span&gt;
+&lt;span class="n"&gt;filename&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;filename&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;to_str&lt;/span&gt;
+&lt;span class="c1"&gt;# ...&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3&gt;Define your own conversion protocols&lt;/h3&gt;
+
+&lt;p&gt;定义自己的conversion protocol,使其他对象也可以定义这个接口来转换&lt;/p&gt;
+&lt;pre class="highlight ruby"&gt;&lt;code&gt;
+&lt;span class="c1"&gt;# origin and ending should both be [x,y] pairs, or should&lt;/span&gt;
+&lt;span class="c1"&gt;# define #to_coords to convert to an [x,y] pair&lt;/span&gt;
+&lt;span class="c1"&gt;# 数据在函数内部都表示为[x,y],但输入时允许多种形式&lt;/span&gt;
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;draw_line&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;start&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;endpoint&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="n"&gt;start&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;start&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;to_coords&lt;/span&gt; &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;start&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;respond_to?&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="ss"&gt;:to_coords&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="n"&gt;start&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;start&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;to_ary&lt;/span&gt;
+  &lt;span class="c1"&gt;# ...&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+
+&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;Point&lt;/span&gt;
+  &lt;span class="kp"&gt;attr_reader&lt;/span&gt; &lt;span class="ss"&gt;:x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="ss"&gt;:y&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="ss"&gt;:name&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;initialize&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;name&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="kp"&gt;nil&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="vi"&gt;@x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="vi"&gt;@y&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="vi"&gt;@name&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;name&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;to_coords&lt;/span&gt;
+    &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+
+&lt;span class="n"&gt;start&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="no"&gt;Point&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;new&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;23&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;37&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;endpoint&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;45&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mi"&gt;89&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;span class="n"&gt;draw_line&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;start&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;endpoint&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3&gt;Define conversions to user-defined types&lt;/h3&gt;
+
+&lt;p&gt;当method需要自定义的类作为input，而且也希望其他类也可以implicitly converted
+到需要的类型，可以定义自己的conversion protocol来把任意对象转换为目标对象。&lt;/p&gt;
+&lt;pre class="highlight ruby"&gt;&lt;code&gt;&lt;span class="c1"&gt;# 每次计算都通过CustomizedClass.new(value),返回新对象&lt;/span&gt;
+&lt;span class="c1"&gt;# 使用delegator把message发给value实例变量&lt;/span&gt;
+&lt;span class="c1"&gt;# 每个类都定义conversion protocol&lt;/span&gt;
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;report_altitude_change&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;current_altitude&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;previous_altitude&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;change&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;current_altitude&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;previous_altitude&lt;/span&gt;
+&lt;span class="c1"&gt;# ...&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+
+&lt;span class="nb"&gt;require&lt;/span&gt; &lt;span class="s1"&gt;'forwardable'&lt;/span&gt;
+&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;Meters&lt;/span&gt;
+  &lt;span class="kp"&gt;extend&lt;/span&gt; &lt;span class="no"&gt;Forwardable&lt;/span&gt;
+  &lt;span class="n"&gt;def_delegators&lt;/span&gt; &lt;span class="ss"&gt;:@value&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="ss"&gt;:to_s&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="ss"&gt;:to_int&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="ss"&gt;:to_i&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;initialize&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;value&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="vi"&gt;@value&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;value&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;-&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;other&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="nb"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;class&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;new&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;value&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;other&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;to_meters&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;value&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;to_meters&lt;/span&gt;
+    &lt;span class="nb"&gt;self&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="c1"&gt;# ...&lt;/span&gt;
+  &lt;span class="kp"&gt;protected&lt;/span&gt;
+  &lt;span class="kp"&gt;attr_reader&lt;/span&gt; &lt;span class="ss"&gt;:value&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+
+&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;Feet&lt;/span&gt;
+  &lt;span class="c1"&gt;# ...&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;to_meters&lt;/span&gt;
+    &lt;span class="no"&gt;Meters&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;new&lt;/span&gt;&lt;span class="p"&gt;((&lt;/span&gt;&lt;span class="n"&gt;value&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;348&lt;/span&gt;&lt;span class="p"&gt;).&lt;/span&gt;&lt;span class="nf"&gt;round&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;新的单位只要定义了 protocol to_meters就可以计算得正确的结果``&lt;/p&gt;
+
+&lt;h3&gt;Use built-in conversion functions&lt;/h3&gt;
+
+&lt;p&gt;当需要把input对象 convet为core type, 可以使用Ruby的大写conversion函数: Integer,
+Array&lt;/p&gt;
+
+&lt;p&gt;注意，Hash应使用Hash[]&lt;/p&gt;
+
+&lt;h3&gt;Use Array() conversion function to array-ify inputs&lt;/h3&gt;
+
+&lt;p&gt;Array()比 to_a 和 to_ary 适用更多的情况&lt;/p&gt;
+&lt;pre class="highlight ruby"&gt;&lt;code&gt;&lt;span class="c1"&gt;# 3种conversion&lt;/span&gt;
+&lt;span class="no"&gt;Array&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;value&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;value&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;to_a&lt;/span&gt;
+&lt;span class="n"&gt;value&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;to_ary&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3&gt;Define conversion function&lt;/h3&gt;
+
+&lt;p&gt;当public
+api可以接受多种形式的input，内部只想用单一的类型。可以定义一个等效(idempotent)的conversion
+function&lt;/p&gt;
+&lt;pre class="highlight ruby"&gt;&lt;code&gt;&lt;span class="c1"&gt;# 函数和类可以重名&lt;/span&gt;
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;Point&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;args&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="k"&gt;case&lt;/span&gt; &lt;span class="n"&gt;args&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;first&lt;/span&gt;
+  &lt;span class="k"&gt;when&lt;/span&gt; &lt;span class="no"&gt;Integer&lt;/span&gt; &lt;span class="k"&gt;then&lt;/span&gt; &lt;span class="no"&gt;Point&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;new&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;args&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="k"&gt;when&lt;/span&gt; &lt;span class="no"&gt;String&lt;/span&gt; &lt;span class="k"&gt;then&lt;/span&gt; &lt;span class="no"&gt;Point&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;new&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;args&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;first&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;split&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;':'&lt;/span&gt;&lt;span class="p"&gt;).&lt;/span&gt;&lt;span class="nf"&gt;map&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="ss"&gt;:to_i&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+  &lt;span class="k"&gt;when&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;arg&lt;/span&gt;&lt;span class="p"&gt;){&lt;/span&gt; &lt;span class="n"&gt;arg&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;respond_to?&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="ss"&gt;:to_point&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+  &lt;span class="n"&gt;args&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;first&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;to_point&lt;/span&gt;
+  &lt;span class="k"&gt;when&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;arg&lt;/span&gt;&lt;span class="p"&gt;){&lt;/span&gt; &lt;span class="n"&gt;arg&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;respond_to?&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="ss"&gt;:to_ary&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+    &lt;span class="no"&gt;Point&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;new&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;args&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;first&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;to_ary&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="k"&gt;else&lt;/span&gt;
+    &lt;span class="k"&gt;raise&lt;/span&gt; &lt;span class="no"&gt;TypeError&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"Cannot convert &lt;/span&gt;&lt;span class="si"&gt;#{&lt;/span&gt;&lt;span class="n"&gt;args&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;inspect&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s2"&gt; to Point"&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+&lt;span class="c1"&gt;# Point class now defines #to_point itself&lt;/span&gt;
+&lt;span class="k"&gt;module&lt;/span&gt; &lt;span class="nn"&gt;Graphics&lt;/span&gt;
+  &lt;span class="k"&gt;module&lt;/span&gt; &lt;span class="nn"&gt;Conversions&lt;/span&gt;
+    &lt;span class="kp"&gt;module_function&lt;/span&gt;
+    &lt;span class="no"&gt;Point&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="no"&gt;Struct&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;new&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="ss"&gt;:x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="ss"&gt;:y&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;do&lt;/span&gt;
+      &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;inspect&lt;/span&gt;
+      &lt;span class="s2"&gt;"&lt;/span&gt;&lt;span class="si"&gt;#{&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;:&lt;/span&gt;&lt;span class="si"&gt;#{&lt;/span&gt;&lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;
+      &lt;span class="k"&gt;end&lt;/span&gt;
+      &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;to_point&lt;/span&gt;
+        &lt;span class="nb"&gt;self&lt;/span&gt;
+      &lt;span class="k"&gt;end&lt;/span&gt;
+    &lt;span class="k"&gt;end&lt;/span&gt;
+    &lt;span class="c1"&gt;# A Pair class which can be converted to an Array&lt;/span&gt;
+    &lt;span class="no"&gt;Pair&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="no"&gt;Struct&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;new&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="ss"&gt;:a&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="ss"&gt;:b&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;do&lt;/span&gt;
+      &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;to_ary&lt;/span&gt;
+        &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;b&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+      &lt;span class="k"&gt;end&lt;/span&gt;
+    &lt;span class="k"&gt;end&lt;/span&gt;
+    &lt;span class="c1"&gt;# A class which can convert itself to Point&lt;/span&gt;
+    &lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;Flag&lt;/span&gt;
+      &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;initialize&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;flag_color&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="vi"&gt;@x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="vi"&gt;@y&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="vi"&gt;@flag_color&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;flag_color&lt;/span&gt;
+      &lt;span class="k"&gt;end&lt;/span&gt;
+      &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;to_point&lt;/span&gt;
+        &lt;span class="no"&gt;Point&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;new&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="vi"&gt;@x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="vi"&gt;@y&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+      &lt;span class="k"&gt;end&lt;/span&gt;
+    &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+&lt;span class="kp"&gt;include&lt;/span&gt; &lt;span class="no"&gt;Graphics&lt;/span&gt;
+&lt;span class="kp"&gt;include&lt;/span&gt; &lt;span class="no"&gt;Graphics&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="no"&gt;Conversions&lt;/span&gt;
+&lt;span class="no"&gt;Point&lt;/span&gt;&lt;span class="p"&gt;([&lt;/span&gt;&lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;&lt;span class="mi"&gt;7&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt; &lt;span class="c1"&gt;# =&amp;gt; 5:7&lt;/span&gt;
+&lt;span class="no"&gt;Point&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="no"&gt;Pair&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;new&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;23&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;32&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt; &lt;span class="c1"&gt;# =&amp;gt; 23:32&lt;/span&gt;
+&lt;span class="no"&gt;Point&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="no"&gt;Flag&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;new&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;42&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;24&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="ss"&gt;:red&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt; &lt;span class="c1"&gt;# =&amp;gt; 42:24&lt;/span&gt;
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;支持 to_ary和to_point两种conversion prototol&lt;/p&gt;
+
+&lt;p&gt;关于 lambda -&amp;gt; {}, Proc的方法 #=== 是 #call 的alias,因此可以像如下使用&lt;/p&gt;
+&lt;pre class="highlight ruby"&gt;&lt;code&gt;
+&lt;span class="n"&gt;even&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt; &lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;span class="n"&gt;even&lt;/span&gt; &lt;span class="o"&gt;===&lt;/span&gt; &lt;span class="mi"&gt;4&lt;/span&gt; &lt;span class="c1"&gt;# =&amp;gt; true&lt;/span&gt;
+&lt;span class="n"&gt;even&lt;/span&gt; &lt;span class="o"&gt;===&lt;/span&gt; &lt;span class="mi"&gt;9&lt;/span&gt; &lt;span class="c1"&gt;# =&amp;gt; false&lt;/span&gt;
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;关于 module_function, 它把后面的method设为private,并且作为module的singleton
+method&lt;/p&gt;
+
+&lt;h3&gt;Replace &amp;ldquo;string typing&amp;rdquo; with classes&lt;/h3&gt;
+
+&lt;p&gt;问题代码&lt;/p&gt;
+&lt;pre class="highlight ruby"&gt;&lt;code&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;TrafficLight&lt;/span&gt;
+  &lt;span class="c1"&gt;# Change to a new state&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;change_to&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;state&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="vi"&gt;@state&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;state&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;signal&lt;/span&gt;
+    &lt;span class="k"&gt;case&lt;/span&gt; &lt;span class="vi"&gt;@state&lt;/span&gt;
+    &lt;span class="k"&gt;when&lt;/span&gt; &lt;span class="s2"&gt;"stop"&lt;/span&gt; &lt;span class="k"&gt;then&lt;/span&gt; &lt;span class="n"&gt;turn_on_lamp&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="ss"&gt;:red&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;when&lt;/span&gt; &lt;span class="s2"&gt;"caution"&lt;/span&gt;
+      &lt;span class="n"&gt;turn_on_lamp&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="ss"&gt;:yellow&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+      &lt;span class="n"&gt;ring_warning_bell&lt;/span&gt;
+    &lt;span class="k"&gt;when&lt;/span&gt; &lt;span class="s2"&gt;"proceed"&lt;/span&gt; &lt;span class="k"&gt;then&lt;/span&gt; &lt;span class="n"&gt;turn_on_lamp&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="ss"&gt;:green&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;next_state&lt;/span&gt;
+    &lt;span class="k"&gt;case&lt;/span&gt; &lt;span class="vi"&gt;@state&lt;/span&gt;
+    &lt;span class="k"&gt;when&lt;/span&gt; &lt;span class="s2"&gt;"stop"&lt;/span&gt; &lt;span class="k"&gt;then&lt;/span&gt; &lt;span class="s2"&gt;"proceed"&lt;/span&gt;
+    &lt;span class="k"&gt;when&lt;/span&gt; &lt;span class="s2"&gt;"caution"&lt;/span&gt; &lt;span class="k"&gt;then&lt;/span&gt; &lt;span class="s2"&gt;"stop"&lt;/span&gt;
+    &lt;span class="k"&gt;when&lt;/span&gt; &lt;span class="s2"&gt;"proceed"&lt;/span&gt; &lt;span class="k"&gt;then&lt;/span&gt; &lt;span class="s2"&gt;"caution"&lt;/span&gt;
+    &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;turn_on_lamp&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;color&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="nb"&gt;puts&lt;/span&gt; &lt;span class="s2"&gt;"Turning on &lt;/span&gt;&lt;span class="si"&gt;#{&lt;/span&gt;&lt;span class="n"&gt;color&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s2"&gt; lamp"&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;ring_warning_bell&lt;/span&gt;
+    &lt;span class="nb"&gt;puts&lt;/span&gt; &lt;span class="s2"&gt;"Ring ring ring!"&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;当需要根据string值来做分支处理时存在的问题&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;对于相同变量的重复的case statement&lt;/li&gt;
+&lt;li&gt;case没有else分支，当条件不匹配时不会报错&lt;/li&gt;
+&lt;li&gt;这么多case statement不是好的代码风格&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;应该使用type system和polymorphic method 来dispatch work，而不是使用case
+when分支。这样不仅代码更健壮，可以理清对问题的理解，使得method花更少的时间用在input
+checking，更多时间用来讲述清晰的故事。&lt;/p&gt;
+&lt;pre class="highlight ruby"&gt;&lt;code&gt;&lt;span class="c1"&gt;#定义一个类，使用不同对象来表示状态，并把next_state的条件判断移到实例变量@next_state&lt;/span&gt;
+&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;TrafficLight&lt;/span&gt;
+  &lt;span class="nc"&gt;State&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="no"&gt;Struct&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;new&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="ss"&gt;:name&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="ss"&gt;:next_state&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;do&lt;/span&gt;
+    &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;to_s&lt;/span&gt;
+      &lt;span class="nb"&gt;name&lt;/span&gt;
+    &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="no"&gt;VALID_STATES&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;
+    &lt;span class="no"&gt;STOP&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="no"&gt;State&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;new&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"stop"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"proceed"&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;
+    &lt;span class="no"&gt;CAUTION&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="no"&gt;State&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;new&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"caution"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"stop"&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;
+    &lt;span class="no"&gt;PROCEED&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="no"&gt;State&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;new&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"proceed"&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"caution"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="p"&gt;]&lt;/span&gt;
+  &lt;span class="c1"&gt;# ...&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;next_state&lt;/span&gt;
+    &lt;span class="vi"&gt;@state&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;next_state&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;但是 “caution” case无法移到实例变量，所以转为使用subclass来表示不同状态&lt;/p&gt;
+&lt;pre class="highlight ruby"&gt;&lt;code&gt;
+&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;TrafficLight&lt;/span&gt;
+  &lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;State&lt;/span&gt;
+    &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;to_s&lt;/span&gt;
+      &lt;span class="nb"&gt;name&lt;/span&gt;
+    &lt;span class="k"&gt;end&lt;/span&gt;
+    &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;name&lt;/span&gt;
+      &lt;span class="nb"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;class&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;name&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;split&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;'::'&lt;/span&gt;&lt;span class="p"&gt;).&lt;/span&gt;&lt;span class="nf"&gt;last&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;downcase&lt;/span&gt;
+    &lt;span class="k"&gt;end&lt;/span&gt;
+    &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;signal&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;traffic_light&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+      &lt;span class="n"&gt;traffic_light&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;turn_on_lamp&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;color&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;to_sym&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;Stop&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt; &lt;span class="no"&gt;State&lt;/span&gt;
+    &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;color&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="s1"&gt;'red'&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="k"&gt;end&lt;/span&gt;
+    &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;next_state&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="no"&gt;Proceed&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;new&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;Caution&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt; &lt;span class="no"&gt;State&lt;/span&gt;
+    &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;color&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="s1"&gt;'yellow'&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="k"&gt;end&lt;/span&gt;
+    &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;next_state&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="no"&gt;Stop&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;new&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="k"&gt;end&lt;/span&gt;
+    &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;signal&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;traffic_light&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+      &lt;span class="k"&gt;super&lt;/span&gt;
+      &lt;span class="n"&gt;traffic_light&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;ring_warning_bell&lt;/span&gt;
+    &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;Proceed&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt; &lt;span class="no"&gt;State&lt;/span&gt;
+    &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;color&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="s1"&gt;'green'&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;next_state&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="no"&gt;Caution&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;new&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;next_state&lt;/span&gt;
+    &lt;span class="vi"&gt;@state&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;next_state&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;signal&lt;/span&gt;
+    &lt;span class="vi"&gt;@state&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;signal&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;self&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;为了避免下面繁琐的表示形式&lt;/p&gt;
+&lt;pre class="highlight ruby"&gt;&lt;code&gt;  &lt;span class="n"&gt;light&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="no"&gt;TrafficLight&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;new&lt;/span&gt;
+  &lt;span class="n"&gt;light&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;change_to&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="no"&gt;TrafficLight&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="no"&gt;Caution&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;new&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="n"&gt;light&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;signal&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;可以使用Symbol或String作为input,转换为类:
+self.class.const&lt;em&gt;get(state.to&lt;/em&gt;s.capitalize).new&lt;/p&gt;
+&lt;pre class="highlight ruby"&gt;&lt;code&gt;
+&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;TrafficLight&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;change_to&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;state&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="vi"&gt;@state&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="no"&gt;State&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;state&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="c1"&gt;# ...&lt;/span&gt;
+  &lt;span class="kp"&gt;private&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;State&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;state&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;case&lt;/span&gt; &lt;span class="n"&gt;state&lt;/span&gt;
+    &lt;span class="k"&gt;when&lt;/span&gt; &lt;span class="no"&gt;State&lt;/span&gt; &lt;span class="k"&gt;then&lt;/span&gt; &lt;span class="n"&gt;state&lt;/span&gt;
+    &lt;span class="k"&gt;else&lt;/span&gt; &lt;span class="nb"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;class&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;const_get&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;state&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;to_s&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;capitalize&lt;/span&gt;&lt;span class="p"&gt;).&lt;/span&gt;&lt;span class="nf"&gt;new&lt;/span&gt;
+    &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+
+&lt;span class="n"&gt;light&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="no"&gt;TrafficLight&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;new&lt;/span&gt;
+&lt;span class="n"&gt;light&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;change_to&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="ss"&gt;:caution&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;light&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;signal&lt;/span&gt;
+&lt;span class="nb"&gt;puts&lt;/span&gt; &lt;span class="s2"&gt;"Next state is: &lt;/span&gt;&lt;span class="si"&gt;#{&lt;/span&gt;&lt;span class="n"&gt;light&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;next_state&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;
+&lt;span class="no"&gt;Turning&lt;/span&gt; &lt;span class="n"&gt;on&lt;/span&gt; &lt;span class="n"&gt;yellow&lt;/span&gt; &lt;span class="n"&gt;lamp&lt;/span&gt;
+&lt;span class="no"&gt;Ring&lt;/span&gt; &lt;span class="n"&gt;ring&lt;/span&gt; &lt;span class="n"&gt;ring!&lt;/span&gt;
+&lt;span class="no"&gt;Next&lt;/span&gt; &lt;span class="n"&gt;state&lt;/span&gt; &lt;span class="ss"&gt;is: &lt;/span&gt;&lt;span class="n"&gt;stop&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3&gt;Wrap collaborators in Adapters&lt;/h3&gt;
+
+&lt;p&gt;method可以接受不同类型的collaborator,他们没有共同的interface，
+需要用adapter包住这些对象，使它们有一致的interface
+adapter的作用在于隐藏让人分心的特殊情况处理，确保特殊情况只需要处理一次&lt;/p&gt;
+&lt;pre class="highlight ruby"&gt;&lt;code&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;BenchmarkedLogger&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;initialize&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;sink&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="vg"&gt;$stdout&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="vi"&gt;@sink&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;sink&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;info&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;message&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;start_time&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="no"&gt;Time&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;now&lt;/span&gt;
+    &lt;span class="k"&gt;yield&lt;/span&gt;
+    &lt;span class="n"&gt;duration&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;start_time&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="no"&gt;Time&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;now&lt;/span&gt;
+    &lt;span class="vi"&gt;@sink&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"[%1.3f] %s&lt;/span&gt;&lt;span class="se"&gt;\n&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt; &lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;duration&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;message&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;要兼容IRC的情况, 定义wrapper类，并添加&amp;lt;&amp;lt;方法:&lt;/p&gt;
+&lt;pre class="highlight ruby"&gt;&lt;code&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;BenchmarkedLogger&lt;/span&gt;
+  &lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;IrcBotSink&lt;/span&gt;
+    &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;initialize&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;bot&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+      &lt;span class="vi"&gt;@bot&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;bot&lt;/span&gt;
+    &lt;span class="k"&gt;end&lt;/span&gt;
+    &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;&amp;lt;&amp;lt;&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;message&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+      &lt;span class="vi"&gt;@bot&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;handlers&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;dispatch&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="ss"&gt;:log_info&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="kp"&gt;nil&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;message&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;initialize&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;sink&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="vi"&gt;@sink&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;case&lt;/span&gt; &lt;span class="n"&gt;sink&lt;/span&gt;
+      &lt;span class="k"&gt;when&lt;/span&gt; &lt;span class="no"&gt;Cinch&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="no"&gt;Bot&lt;/span&gt; &lt;span class="k"&gt;then&lt;/span&gt; &lt;span class="no"&gt;IrcBotSink&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;new&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;sink&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+      &lt;span class="k"&gt;else&lt;/span&gt; &lt;span class="n"&gt;sink&lt;/span&gt;
+      &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;info&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;message&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;start_time&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="no"&gt;Time&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;now&lt;/span&gt;
+    &lt;span class="k"&gt;yield&lt;/span&gt;
+    &lt;span class="n"&gt;duration&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;start_time&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="no"&gt;Time&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;now&lt;/span&gt;
+    &lt;span class="vi"&gt;@sink&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"[%1.3f] %s&lt;/span&gt;&lt;span class="se"&gt;\n&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt; &lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;duration&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;message&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+
+&lt;span class="nb"&gt;require&lt;/span&gt; &lt;span class="s1"&gt;'cinch'&lt;/span&gt;
+&lt;span class="n"&gt;bot&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="no"&gt;Cinch&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="no"&gt;Bot&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;new&lt;/span&gt; &lt;span class="k"&gt;do&lt;/span&gt;
+  &lt;span class="n"&gt;configure&lt;/span&gt; &lt;span class="k"&gt;do&lt;/span&gt; &lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="n"&gt;c&lt;/span&gt;&lt;span class="o"&gt;|&lt;/span&gt;
+    &lt;span class="n"&gt;c&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;nick&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;"bm-logger"&lt;/span&gt;
+    &lt;span class="n"&gt;c&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;server&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="no"&gt;ENV&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;"LOG_SERVER"&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+    &lt;span class="n"&gt;c&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;channels&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="no"&gt;ENV&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;"LOG_CHANNEL"&lt;/span&gt;&lt;span class="p"&gt;]]&lt;/span&gt;
+    &lt;span class="n"&gt;c&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;verbose&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kp"&gt;true&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="n"&gt;on&lt;/span&gt; &lt;span class="ss"&gt;:log_info&lt;/span&gt; &lt;span class="k"&gt;do&lt;/span&gt; &lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;line&lt;/span&gt;&lt;span class="o"&gt;|&lt;/span&gt;
+    &lt;span class="no"&gt;Channel&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="no"&gt;ENV&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s2"&gt;"LOG_CHANNEL"&lt;/span&gt;&lt;span class="p"&gt;]).&lt;/span&gt;&lt;span class="nf"&gt;msg&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;line&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+&lt;span class="n"&gt;bot_thread&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="no"&gt;Thread&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;new&lt;/span&gt; &lt;span class="k"&gt;do&lt;/span&gt;
+  &lt;span class="n"&gt;bot&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;start&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3&gt;Use transparent adapters to gradually introduce abstraction&lt;/h3&gt;
+
+&lt;p&gt;当需要逐步替代原有对象时，可以使用DelegateClass来替换对象，再逐步改造类的定义&lt;/p&gt;
+
+&lt;h3&gt;Reject unworkable values with preconditions&lt;/h3&gt;
+
+&lt;p&gt;当遇到无法转换的input时应该使用precondition尽早reject&lt;/p&gt;
+&lt;pre class="highlight ruby"&gt;&lt;code&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;Employee&lt;/span&gt;
+  &lt;span class="kp"&gt;attr_accessor&lt;/span&gt; &lt;span class="ss"&gt;:name&lt;/span&gt;
+  &lt;span class="kp"&gt;attr_reader&lt;/span&gt; &lt;span class="ss"&gt;:hire_date&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;initialize&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;name&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;hire_date&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="vi"&gt;@name&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nb"&gt;name&lt;/span&gt;
+    &lt;span class="nb"&gt;self&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;hire_date&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;hire_date&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;hire_date&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;new_hire_date&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;raise&lt;/span&gt; &lt;span class="no"&gt;TypeError&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"Invalid hire date"&lt;/span&gt; &lt;span class="k"&gt;unless&lt;/span&gt; &lt;span class="n"&gt;new_hire_date&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;is_a?&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="no"&gt;Date&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="vi"&gt;@hire_date&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;new_hire_date&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3&gt;Use #fetch to asset the presence of Hash keys&lt;/h3&gt;
+
+&lt;h3&gt;Use #fetch for defaults&lt;/h3&gt;
+
+&lt;p&gt;使用myhash.fetch(key) {default} 而不要使用2个参数的fetch： myhash.fetch(key,
+defualt), 因为这种形式每次都执行，可能造成困扰&lt;/p&gt;
+
+&lt;h3&gt;Document assumptions with assertions&lt;/h3&gt;
+&lt;pre class="highlight ruby"&gt;&lt;code&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;Account&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;refresh_transactions&lt;/span&gt;
+    &lt;span class="n"&gt;transactions&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;bank&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;read_transactions&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;account_number&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;transactions&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;is_a?&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="no"&gt;Array&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="n"&gt;or&lt;/span&gt; &lt;span class="k"&gt;raise&lt;/span&gt; &lt;span class="no"&gt;TypeError&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s2"&gt;"transactions is not an Array"&lt;/span&gt;
+    &lt;span class="n"&gt;transactions&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;each&lt;/span&gt; &lt;span class="k"&gt;do&lt;/span&gt; &lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="n"&gt;transaction&lt;/span&gt;&lt;span class="o"&gt;|&lt;/span&gt;
+      &lt;span class="n"&gt;amount&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;transaction&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;fetch&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s2"&gt;"amount"&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+      &lt;span class="n"&gt;amount_cents&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="no"&gt;Float&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;amount&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="mi"&gt;100&lt;/span&gt;&lt;span class="p"&gt;).&lt;/span&gt;&lt;span class="nf"&gt;to_i&lt;/span&gt;
+      &lt;span class="n"&gt;cache_transaction&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="ss"&gt;:amount&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;amount_cents&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;ol&gt;
+&lt;li&gt;在边界而不是在内部&lt;/li&gt;
+&lt;li&gt;使用raise来验证假设&lt;/li&gt;
+&lt;li&gt;Float()而不是to_f&lt;/li&gt;
+&lt;li&gt;hash.fetch而不是hash[]&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h3&gt;Handle special cases with Guard Clause&lt;/h3&gt;
+&lt;pre class="highlight ruby"&gt;&lt;code&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;log_reading&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;reading_or_readings&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+  &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="vi"&gt;@quiet&lt;/span&gt; &lt;span class="k"&gt;then&lt;/span&gt; &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="c1"&gt;# ...&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3&gt;Represent special cases as objects&lt;/h3&gt;
+
+&lt;p&gt;在特殊情况用对象来表示，而不是用nil，这样可以避免在所有用到的地方做nil检查&lt;/p&gt;
+&lt;pre class="highlight ruby"&gt;&lt;code&gt;
+&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;User&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;authenticated?&lt;/span&gt;
+    &lt;span class="kp"&gt;true&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+
+&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;GuestUser&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;initialize&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;session&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="vi"&gt;@session&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;session&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;name&lt;/span&gt;
+    &lt;span class="s1"&gt;'anonymous'&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;authenticated?&lt;/span&gt;
+    &lt;span class="kp"&gt;false&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+
+&lt;span class="k"&gt;end&lt;/span&gt;
+
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;current_user&lt;/span&gt;
+  &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;session&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="ss"&gt;:user_id&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+    &lt;span class="no"&gt;User&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;find&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;session&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="ss"&gt;:user_id&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt;
+  &lt;span class="k"&gt;else&lt;/span&gt;
+    &lt;span class="no"&gt;GuestUser&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;new&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;session&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;这个模式的缺点是GuestUser必须和User的接口保持同步，可以通过shared
+test suite来确保这点&lt;/p&gt;
+&lt;pre class="highlight ruby"&gt;&lt;code&gt;&lt;span class="n"&gt;shared_examples_for&lt;/span&gt; &lt;span class="s1"&gt;'a user'&lt;/span&gt; &lt;span class="k"&gt;do&lt;/span&gt;
+  &lt;span class="n"&gt;it&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="n"&gt;should&lt;/span&gt; &lt;span class="n"&gt;respond_to&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="ss"&gt;:name&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+  &lt;span class="n"&gt;it&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="n"&gt;should&lt;/span&gt; &lt;span class="n"&gt;respond_to&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="ss"&gt;:authenticated?&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+  &lt;span class="n"&gt;it&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="n"&gt;should&lt;/span&gt; &lt;span class="n"&gt;respond_to&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="ss"&gt;:has_role?&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+  &lt;span class="n"&gt;it&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="n"&gt;should&lt;/span&gt; &lt;span class="n"&gt;respond_to&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="ss"&gt;:visible_listings&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+  &lt;span class="n"&gt;it&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="n"&gt;should&lt;/span&gt; &lt;span class="n"&gt;respond_to&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="ss"&gt;:last_seen_online&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+  &lt;span class="n"&gt;it&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="n"&gt;should&lt;/span&gt; &lt;span class="n"&gt;respond_to&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="ss"&gt;:cart&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+&lt;span class="n"&gt;describe&lt;/span&gt; &lt;span class="no"&gt;GuestUser&lt;/span&gt; &lt;span class="k"&gt;do&lt;/span&gt;
+  &lt;span class="n"&gt;subject&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="no"&gt;GuestUser&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;new&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;stub&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s1"&gt;'session'&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+  &lt;span class="n"&gt;it_should_behave_like&lt;/span&gt; &lt;span class="s1"&gt;'a user'&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+&lt;span class="n"&gt;describe&lt;/span&gt; &lt;span class="no"&gt;User&lt;/span&gt; &lt;span class="k"&gt;do&lt;/span&gt;
+  &lt;span class="n"&gt;subject&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="no"&gt;User&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;new&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+  &lt;span class="n"&gt;it_should_behave_like&lt;/span&gt; &lt;span class="s1"&gt;'a user'&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3&gt;Represent do-nothing cases as null objects&lt;/h3&gt;
+
+&lt;p&gt;当其中一个input是nil时，
+这表示是一个特殊情形，处理这个特殊情形的方式是什么也不做，
+这时应该把nil替换为一个Null
+Object的collaborator，它和一般的collaborator有相同的接口，但是它接受消息，不执行动作&lt;/p&gt;
+&lt;pre class="highlight ruby"&gt;&lt;code&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;NullObject&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt; &lt;span class="no"&gt;BasicObject&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;method_missing&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;respond_to?&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;name&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="kp"&gt;true&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;但是，如果遇到method call chain, 或LoD时，需要做些改变&lt;/p&gt;
+&lt;pre class="highlight ruby"&gt;&lt;code&gt;
+&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;NullObject&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;method_missing&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="nb"&gt;self&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+&lt;span class="c1"&gt;# ...&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;这样做的缺点是返回一个black hole null object,因此，应该在边界处(public api 返回值时)把对象还原回nil&lt;/p&gt;
+&lt;pre class="highlight ruby"&gt;&lt;code&gt;
+&lt;span class="c1"&gt;# return either the argument or nil, but never a NullObject&lt;/span&gt;
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;Actual&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;object&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="k"&gt;case&lt;/span&gt; &lt;span class="n"&gt;object&lt;/span&gt;
+  &lt;span class="k"&gt;when&lt;/span&gt; &lt;span class="no"&gt;NullObject&lt;/span&gt; &lt;span class="k"&gt;then&lt;/span&gt; &lt;span class="kp"&gt;nil&lt;/span&gt;
+  &lt;span class="k"&gt;else&lt;/span&gt; &lt;span class="n"&gt;object&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+&lt;span class="no"&gt;Actual&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="no"&gt;User&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;new&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="no"&gt;Actual&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kp"&gt;nil&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="no"&gt;Actual&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="no"&gt;NullObject&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;new&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="c1"&gt;# =&amp;gt; #&amp;lt;User:0x00000002218d18&amp;gt;&lt;/span&gt;
+&lt;span class="c1"&gt;# =&amp;gt; nil&lt;/span&gt;
+&lt;span class="c1"&gt;# =&amp;gt; nil&lt;/span&gt;
+
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;create_widget&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;attributes&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;{},&lt;/span&gt; &lt;span class="n"&gt;data_store&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="kp"&gt;nil&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="n"&gt;data_store&lt;/span&gt; &lt;span class="o"&gt;||=&lt;/span&gt; &lt;span class="no"&gt;NullObject&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;new&lt;/span&gt;
+  &lt;span class="no"&gt;Actual&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;data_store&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;store&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="no"&gt;Widget&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;new&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;attributes&lt;/span&gt;&lt;span class="p"&gt;)))&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;还要让null object是falsey&lt;/p&gt;
+&lt;pre class="highlight ruby"&gt;&lt;code&gt;
+&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;NullObject&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt; &lt;span class="no"&gt;BasicObject&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;method_missing&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;respond_to_missing?&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;name&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="kp"&gt;true&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;nil?&lt;/span&gt;
+    &lt;span class="kp"&gt;true&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="o"&gt;!&lt;/span&gt;
+    &lt;span class="kp"&gt;true&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;但ruby不允许定义我们自己的falsey&lt;/p&gt;
+&lt;pre class="highlight ruby"&gt;&lt;code&gt;
+&lt;span class="n"&gt;null&lt;/span&gt; &lt;span class="p"&gt;?&lt;/span&gt; &lt;span class="s2"&gt;"truthy"&lt;/span&gt; &lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s2"&gt;"falsey"&lt;/span&gt; &lt;span class="c1"&gt;# =&amp;gt; "truthy"&lt;/span&gt;
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;所以，关键是要记住，不需要去检查null，直接可以调用它的方法，如果它是null对象，它只会安静地什么也不做。&lt;/p&gt;
+
+&lt;h3&gt;Substitute a benign value for nil&lt;/h3&gt;
+
+&lt;p&gt;如果一个不重要的input没有提供, 用一个可用的替代值，不一定需要raise exception&lt;/p&gt;
+&lt;pre class="highlight ruby"&gt;&lt;code&gt;
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;render_member&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;member&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;group&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="n"&gt;location&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="no"&gt;Geolocatron&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;locate&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;member&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;address&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;||&lt;/span&gt;
+  &lt;span class="n"&gt;group&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;city_location&lt;/span&gt; &lt;span class="c1"&gt;# good benign value&lt;/span&gt;
+  &lt;span class="n"&gt;html&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;""&lt;/span&gt;
+  &lt;span class="n"&gt;html&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class="s2"&gt;"&amp;lt;div class='vcard'&amp;gt;"&lt;/span&gt;
+  &lt;span class="n"&gt;html&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class="s2"&gt;" &amp;lt;div class='fn'&amp;gt;&lt;/span&gt;&lt;span class="si"&gt;#{&lt;/span&gt;&lt;span class="n"&gt;member&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;fname&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s2"&gt; &lt;/span&gt;&lt;span class="si"&gt;#{&lt;/span&gt;&lt;span class="n"&gt;member&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;lname&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;&amp;lt;/div&amp;gt;"&lt;/span&gt;
+  &lt;span class="n"&gt;html&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class="s2"&gt;" &amp;lt;img class='photo' src='&lt;/span&gt;&lt;span class="si"&gt;#{&lt;/span&gt;&lt;span class="n"&gt;member&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;avatar_url&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;'/&amp;gt;"&lt;/span&gt;
+  &lt;span class="n"&gt;html&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class="s2"&gt;" &amp;lt;img class='map' src='&lt;/span&gt;&lt;span class="si"&gt;#{&lt;/span&gt;&lt;span class="n"&gt;location&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;map_url&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;'/&amp;gt;"&lt;/span&gt;
+  &lt;span class="n"&gt;html&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class="s2"&gt;"&amp;lt;/div&amp;gt;"&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;&lt;span class="s2"&gt;"'"&lt;/span&gt;
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3&gt;Use symbols as placeholder objects&lt;/h3&gt;
+
+&lt;p&gt;根据方法的调用，可选的collaborator可能用到，也可能没用到，我们应该用symbol，而不是nil作为placeholder，这样如果出错，也更容易调试&lt;/p&gt;
+&lt;pre class="highlight ruby"&gt;&lt;code&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;list_widgets&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;options&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;{})&lt;/span&gt;
+  &lt;span class="n"&gt;credentials&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;options&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;fetch&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="ss"&gt;:credentials&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="ss"&gt;:credentials_not_set&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+  &lt;span class="n"&gt;page_size&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;options&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;fetch&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="ss"&gt;:page_size&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="mi"&gt;20&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+  &lt;span class="n"&gt;page&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;options&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;fetch&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="ss"&gt;:page&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+  &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="n"&gt;page_size&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="mi"&gt;20&lt;/span&gt;
+    &lt;span class="n"&gt;user&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;credentials&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;fetch&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="ss"&gt;:user&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;password&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;credentials&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;fetch&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="ss"&gt;:password&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;url&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;"https://&lt;/span&gt;&lt;span class="si"&gt;#{&lt;/span&gt;&lt;span class="n"&gt;user&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;:&lt;/span&gt;&lt;span class="si"&gt;#{&lt;/span&gt;&lt;span class="n"&gt;password&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt;
+      &lt;span class="s2"&gt;"@www.example.com/widgets?page=&lt;/span&gt;&lt;span class="si"&gt;#{&lt;/span&gt;&lt;span class="n"&gt;page&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;&amp;amp;page_size=&lt;/span&gt;&lt;span class="si"&gt;#{&lt;/span&gt;&lt;span class="n"&gt;page_size&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;
+  &lt;span class="k"&gt;else&lt;/span&gt;
+    &lt;span class="n"&gt;url&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;"http://www.example.com/widgets"&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt;
+      &lt;span class="s2"&gt;"?page=&lt;/span&gt;&lt;span class="si"&gt;#{&lt;/span&gt;&lt;span class="n"&gt;page&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;&amp;amp;page_size=&lt;/span&gt;&lt;span class="si"&gt;#{&lt;/span&gt;&lt;span class="n"&gt;page_size&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;"&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="nb"&gt;puts&lt;/span&gt; &lt;span class="s2"&gt;"Contacting &lt;/span&gt;&lt;span class="si"&gt;#{&lt;/span&gt;&lt;span class="n"&gt;url&lt;/span&gt;&lt;span class="si"&gt;}&lt;/span&gt;&lt;span class="s2"&gt;..."&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3&gt;Bundle arguments into parameter objects&lt;/h3&gt;
+
+&lt;p&gt;如果多个method都传入相同参数列表，应该把参数合到一个新类。比如坐标数组可以用整合到point类&lt;/p&gt;
+
+&lt;p&gt;Double Dispatch pattern使Point画出它自己。&lt;/p&gt;
+&lt;pre class="highlight ruby"&gt;&lt;code&gt;&lt;span class="no"&gt;Point&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="no"&gt;Struct&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;new&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="ss"&gt;:x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="ss"&gt;:y&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;do&lt;/span&gt;
+  &lt;span class="c1"&gt;# ...&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;draw_on&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;map&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="c1"&gt;# ...&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;Map&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;draw_point&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;point&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;point&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;draw_on&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;self&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;draw_line&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;point1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;point2&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;point1&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;draw_on&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;self&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;point2&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;draw_on&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;self&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="c1"&gt;# draw line connecting points...&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;不要把新类型的信息(如stared)作为参数(例如option)传入，而是定义新的类&lt;/p&gt;
+
+&lt;p&gt;StarredPoint只改一点，所以使用继承&lt;/p&gt;
+&lt;pre class="highlight ruby"&gt;&lt;code&gt;
+&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;StarredPoint&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt; &lt;span class="no"&gt;Point&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;draw_on&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;map&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="c1"&gt;# draw a star instead of a dot...&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;to_hash&lt;/span&gt;
+    &lt;span class="k"&gt;super&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;merge&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="ss"&gt;starred: &lt;/span&gt;&lt;span class="kp"&gt;true&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;FuzzyPoint可以用Decorator模式，用SimpleDelegator把大部分method代理到原对象，再override draw_on&lt;/p&gt;
+&lt;pre class="highlight ruby"&gt;&lt;code&gt;
+&lt;span class="nb"&gt;require&lt;/span&gt; &lt;span class="s1"&gt;'delegate'&lt;/span&gt;
+&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;FuzzyPoint&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt; &lt;span class="no"&gt;SimpleDelegator&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;initialize&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;point&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;fuzzy_radius&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;super&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;point&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="vi"&gt;@fuzzy_radius&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;fuzzy_radius&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;draw_on&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;map&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;super&lt;/span&gt; &lt;span class="c1"&gt;# draw the point&lt;/span&gt;
+    &lt;span class="c1"&gt;# draw a circle around the point...&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;to_hash&lt;/span&gt;
+    &lt;span class="k"&gt;super&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;merge&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="ss"&gt;fuzzy_radius: &lt;/span&gt;&lt;span class="vi"&gt;@fuzzy_radius&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;把如何画自己的逻辑都封装在不同的Point类里，因此Point的用户不需要改变就可以支持不同的point&lt;/p&gt;
+&lt;pre class="highlight ruby"&gt;&lt;code&gt;&lt;span class="no"&gt;Point&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="no"&gt;Struct&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;new&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="ss"&gt;:x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="ss"&gt;:y&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;do&lt;/span&gt;
+  &lt;span class="c1"&gt;# ...&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;draw_on&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;map&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="c1"&gt;# ...&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;Map&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;draw_point&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;point&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;point&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;draw_on&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;self&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;draw_line&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;point1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;point2&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;point1&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;draw_on&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;self&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;point2&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;draw_on&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;self&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="c1"&gt;# draw line connecting points...&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;MapStore&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;write_point&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;point&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;point_hash&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;point&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;to_hash&lt;/span&gt;
+    &lt;span class="c1"&gt;# ...&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+&lt;span class="c1"&gt;# ...&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;把point的信息(star or fuzzy)作为参数的类型, 而不是额外的参数(option),
+可以消除所有对不同point属性的条件判断&lt;/p&gt;
+
+&lt;h3&gt;Yield a parameter builder object&lt;/h3&gt;
+
+&lt;p&gt;在上个模式里，用户必须知道很多不同的类才能使用API，因此应该隐藏对象的构建，并yield
+parameter object 或 parameter builder object&lt;/p&gt;
+
+&lt;h4&gt;yiled parameter object&lt;/h4&gt;
+&lt;pre class="highlight ruby"&gt;&lt;code&gt;
+&lt;span class="no"&gt;Point&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt; &lt;span class="no"&gt;Struct&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;new&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="ss"&gt;:x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="ss"&gt;:y&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="ss"&gt;:name&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="ss"&gt;:magnitude&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;do&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;initialize&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;name&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s1"&gt;''&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;magnitude&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;super&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;name&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;magnitude&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;magnitude&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;magnitude&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;raise&lt;/span&gt; &lt;span class="no"&gt;ArgumentError&lt;/span&gt; &lt;span class="k"&gt;unless&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;.&lt;/span&gt;&lt;span class="mi"&gt;20&lt;/span&gt;&lt;span class="p"&gt;).&lt;/span&gt;&lt;span class="nf"&gt;include?&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;magnitude&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;super&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;magnitude&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="c1"&gt;# ...&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+
+&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;Map&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;draw_point&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;point_or_x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="ss"&gt;:y_not_set_in_draw_point&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;point&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;point_or_x&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;is_a?&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="no"&gt;Integer&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;?&lt;/span&gt; &lt;span class="no"&gt;Point&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;new&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;point_or_x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;point_or_x&lt;/span&gt;
+    &lt;span class="k"&gt;yield&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;point&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="nb"&gt;block_given?&lt;/span&gt;
+    &lt;span class="n"&gt;point&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;draw_on&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;self&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;draw_starred_point&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;point_customization&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;draw_point&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="no"&gt;StarredPoint&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;new&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;point_customization&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+&lt;span class="c1"&gt;# ...&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+
+&lt;span class="n"&gt;map&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;draw_point&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;7&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;9&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;do&lt;/span&gt; &lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="n"&gt;point&lt;/span&gt;&lt;span class="o"&gt;|&lt;/span&gt;
+  &lt;span class="n"&gt;point&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;magnitude&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;3&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+&lt;span class="n"&gt;map&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;draw_starred_point&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;18&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;27&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;do&lt;/span&gt; &lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="n"&gt;point&lt;/span&gt;&lt;span class="o"&gt;|&lt;/span&gt;
+  &lt;span class="n"&gt;point&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;name&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;"home base"&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h4&gt;yiled parameter builder object&lt;/h4&gt;
+&lt;pre class="highlight ruby"&gt;&lt;code&gt;
+&lt;span class="nb"&gt;require&lt;/span&gt; &lt;span class="s1"&gt;'delegate'&lt;/span&gt;
+&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;PointBuilder&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt; &lt;span class="no"&gt;SimpleDelegator&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;initialize&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;point&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;super&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;point&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;fuzzy_radius&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;fuzzy_radius&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="c1"&gt;# __setobj__ is how we replace the wrapped object in a&lt;/span&gt;
+    &lt;span class="c1"&gt;# SimpleDelegator&lt;/span&gt;
+    &lt;span class="n"&gt;__setobj__&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="no"&gt;FuzzyPoint&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;new&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;point&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;fuzzy_radius&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;point&lt;/span&gt;
+    &lt;span class="c1"&gt;# __getobj__ is how we access the wrapped object directly in a&lt;/span&gt;
+    &lt;span class="c1"&gt;# SimpleDelegator&lt;/span&gt;
+    &lt;span class="n"&gt;__getobj__&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+
+&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;Map&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;draw_point&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;point_or_x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="ss"&gt;:y_not_set_in_draw_point&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;point&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;point_or_x&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;is_a?&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="no"&gt;Integer&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;?&lt;/span&gt; &lt;span class="no"&gt;Point&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;new&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;point_or_x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;point_or_x&lt;/span&gt;
+    &lt;span class="n"&gt;builder&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="no"&gt;PointBuilder&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;new&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;point&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;yield&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;builder&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="nb"&gt;block_given?&lt;/span&gt;
+    &lt;span class="n"&gt;builder&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;point&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;draw_on&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;self&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;draw_starred_point&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;draw_point&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="no"&gt;StarredPoint&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;new&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+&lt;span class="c1"&gt;# ...&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+
+&lt;span class="n"&gt;map&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;draw_starred_point&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;7&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;9&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;do&lt;/span&gt; &lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="n"&gt;point&lt;/span&gt;&lt;span class="o"&gt;|&lt;/span&gt;
+  &lt;span class="n"&gt;point&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;name&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s2"&gt;"gold buried here"&lt;/span&gt;
+  &lt;span class="n"&gt;point&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;magnitude&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;15&lt;/span&gt;
+  &lt;span class="n"&gt;point&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;fuzzy_radius&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;50&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+
+
+&lt;span class="n"&gt;my_point&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="no"&gt;MySpecialPoint&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;new&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;123&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;321&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;map&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;draw_point&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;my_point&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;do&lt;/span&gt; &lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="n"&gt;point&lt;/span&gt;&lt;span class="o"&gt;|&lt;/span&gt;
+  &lt;span class="n"&gt;point&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;fuzzy_radius&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;20&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;h3&gt;Receive policies instead of data&lt;/h3&gt;
+&lt;pre class="highlight ruby"&gt;&lt;code&gt;
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;delete_files&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;files&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;options&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;{})&lt;/span&gt;
+  &lt;span class="n"&gt;error_policy&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;options&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;fetch&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="ss"&gt;:on_error&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;file&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;error&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="k"&gt;raise&lt;/span&gt; &lt;span class="n"&gt;error&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+  &lt;span class="n"&gt;symlink_policy&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;options&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;fetch&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="ss"&gt;:on_symlink&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;file&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="no"&gt;File&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;delete&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;file&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+  &lt;span class="n"&gt;files&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;each&lt;/span&gt; &lt;span class="k"&gt;do&lt;/span&gt; &lt;span class="o"&gt;|&lt;/span&gt;&lt;span class="n"&gt;file&lt;/span&gt;&lt;span class="o"&gt;|&lt;/span&gt;
+    &lt;span class="k"&gt;begin&lt;/span&gt;
+      &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="no"&gt;File&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;symlink?&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;file&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="n"&gt;symlink_policy&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;call&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;file&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+      &lt;span class="k"&gt;else&lt;/span&gt;
+        &lt;span class="no"&gt;File&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;delete&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;file&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+      &lt;span class="k"&gt;end&lt;/span&gt;
+    &lt;span class="k"&gt;rescue&lt;/span&gt; &lt;span class="o"&gt;=&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;error&lt;/span&gt;
+      &lt;span class="n"&gt;error_policy&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;call&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;file&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;error&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;end&lt;/span&gt;
+  &lt;span class="k"&gt;end&lt;/span&gt;
+&lt;span class="k"&gt;end&lt;/span&gt;
+
+&lt;span class="n"&gt;delete_files&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt; 
+  &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s1"&gt;'file1'&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s1"&gt;'file2'&lt;/span&gt;&lt;span class="p"&gt;],&lt;/span&gt; 
+  &lt;span class="ss"&gt;on_error: &lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;file&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;error&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="nb"&gt;warn&lt;/span&gt; &lt;span class="n"&gt;error&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;message&lt;/span&gt; &lt;span class="p"&gt;},&lt;/span&gt;
+  &lt;span class="ss"&gt;on_symlink: &lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;file&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="no"&gt;File&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;delete&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="no"&gt;File&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="nf"&gt;realpath&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;file&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt; &lt;span class="p"&gt;})&lt;/span&gt;
+
+&lt;/code&gt;&lt;/pre&gt;
+</content>
+  </entry>
+  <entry>
+    <title>review confident ruby</title>
+    <link rel="alternate" href="http://blog.url.com/articles/2014/09/03/review-confident-ruby/"/>
+    <id>http://blog.url.com/articles/2014/09/03/review-confident-ruby/</id>
+    <published>2014-09-03T11:44:00+08:00</published>
+    <updated>2015-03-05T23:43:35+08:00</updated>
+    <author>
+      <name>Article Author</name>
+    </author>
+    <content type="html">&lt;h2&gt;再读confident ruby(performing work部分)&lt;/h2&gt;
+
+&lt;p&gt;再读confident ruby，记下以下要点。&lt;/p&gt;
+
+&lt;h2&gt;每个函数应包含4部分&lt;/h2&gt;
+
+&lt;ol&gt;
+&lt;li&gt;collecting input&lt;/li&gt;
+&lt;li&gt;performing work&lt;/li&gt;
+&lt;li&gt;delivering result&lt;/li&gt;
+&lt;li&gt;handling failures&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h2&gt;performing work的模式&lt;/h2&gt;
+
+&lt;p&gt;这个部分只有一个pattern&lt;/p&gt;
+
+&lt;h3&gt;sending a strong message&lt;/h3&gt;
+
+&lt;p&gt;要发消息给trused object,需要3个条件&lt;/p&gt;
+
+&lt;ol&gt;
+&lt;li&gt;识别要完成工作所需要发送的消息&lt;/li&gt;
+&lt;li&gt;识别这些消息对应的roles&lt;/li&gt;
+&lt;li&gt;确保method能担任这些roles&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h4&gt;一个从文件中读取用户信息，并发邮件的例子&lt;/h4&gt;
+
+&lt;h5&gt;需要做以下步骤&lt;/h5&gt;
+
+&lt;ol&gt;
+&lt;li&gt;Parse the purchase records from the CSV contained in a provided IO object.&lt;/li&gt;
+&lt;li&gt;For each purchase record, use the record&amp;rsquo;s email address to get the
+associated customer record, or, if the email hasn&amp;rsquo;t been seen before, create a
+new customer record in our system.&lt;/li&gt;
+&lt;li&gt;Use the legacy record&amp;rsquo;s product ID to find or create a product record in our
+system.&lt;/li&gt;
+&lt;li&gt;Add the product to the customer record&amp;rsquo;s list of purchases.&lt;/li&gt;
+&lt;li&gt;Notify the customer of the new location where they can download their files
+and update their account info.&lt;/li&gt;
+&lt;li&gt;Log the successful import of the purchase record.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h5&gt;识别message&lt;/h5&gt;
+
+&lt;ol&gt;
+&lt;li&gt;#parse_legacy_purchase_records.&lt;/li&gt;
+&lt;li&gt;For #each purchase record, use the record&amp;rsquo;s #email_address to #get_customer.&lt;/li&gt;
+&lt;li&gt;Use the record&amp;rsquo;s #product_id to #get_product.&lt;/li&gt;
+&lt;li&gt;#add_purchased_product to the customer record.&lt;/li&gt;
+&lt;li&gt;#notify_of_files_available for the purchased product.&lt;/li&gt;
+&lt;li&gt;#log_successful_import of the product record.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;h5&gt;识别roles&lt;/h5&gt;
+
+&lt;table&gt;&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;Message&lt;/th&gt;
+&lt;th&gt;Receiver Role&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;#parse_legacy_purchase_records&lt;/td&gt;
+&lt;td&gt;legacy_data_parser&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;#each&lt;/td&gt;
+&lt;td&gt;purchase_list&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;#email_address,#product_id&lt;/td&gt;
+&lt;td&gt;purchase_record&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;#get_customer&lt;/td&gt;
+&lt;td&gt;customer_list&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;#get_product&lt;/td&gt;
+&lt;td&gt;product_inventory&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;#add_purchased_product&lt;/td&gt;
+&lt;td&gt;customer&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;#notify_of_files_available&lt;/td&gt;
+&lt;td&gt;customer&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;#log_successful_import&lt;/td&gt;
+&lt;td&gt;data_importer&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;&lt;/table&gt;
+
+&lt;h4&gt;关于duck type&lt;/h4&gt;
+
+&lt;p&gt;不要在method中再根据type写分支逻辑，而是首先找出我们需要什么样的message和role，然后确保我们在程序里只允许使用准备好的duck&lt;/p&gt;
+</content>
+  </entry>
+</feed>

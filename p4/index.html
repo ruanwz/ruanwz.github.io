@@ -1,0 +1,769 @@
+<html>
+<head>
+<meta charset='utf-8'>
+<meta content='IE=edge;chrome=1' http-equiv='X-UA-Compatible'>
+<title>David's Blog</title>
+<meta content='' name='description'>
+<meta content='width=device-width' name='viewport'>
+<link href='/css/normalize.css' rel='stylesheet'>
+<link href='/css/main.css' rel='stylesheet'>
+<link href='/css/bootstrap.min.css' rel='stylesheet'>
+<link href='/stylesheets/background.css' rel='stylesheet'>
+<link href='/stylesheets/article.css' rel='stylesheet'>
+<script src='/js/vendor/modernizr-2.6.1.min.js'></script>
+<script src='/js/vendor/jquery-1.8.0.min.js'></script>
+<script src='/js/bootstrap.min.js'></script>
+<link href="/stylesheets/rouge.css" rel="stylesheet" type="text/css" />
+<link href="/stylesheets/home.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<header>
+<nav class='navbar navbar-default' role='navigation'>
+<div class='navbar-header'>
+<button class='navbar-toggle' data-target='.navbar-ex1-collapse' data-toggle='collapse' type='button'>
+<span class='icon-bar'></span>
+<span class='icon-bar'></span>
+<span class='icon-bar'></span>
+</button>
+<a class='navbar-brand'></a>
+</div>
+<div class='collapse navbar-collapse navbar-ex1-collapse'>
+<ul class='nav navbar-nav'>
+<li>
+<a href='/'>Home</a>
+</li>
+<li>
+<a href='/feed.xml'>Feed</a>
+</li>
+<li>
+<a href='/about'>About</a>
+</li>
+</ul>
+</div>
+</nav>
+</header>
+<section class='main'>
+<div id='main' role='main'>
+<div class='container'>
+<div class='jumbotron content_box'>
+<div class='container'>
+<div class='row'>
+<div class='col-lg-2 col-xs-4'>
+<img alt='logo' class='img-responsive' src='/img/logo.jpg'>
+</div>
+<h1 class='col-lg-10 col-xs-8'>
+David's Blog
+</h1>
+</div>
+</div>
+</div>
+<div class='row'>
+<div class='col-lg-8 col-xs-12'>
+<ul class='well-lg content_box'>
+<p>
+Page 4 of 4
+</p>
+<ul class='pager'>
+</ul>
+<li class='article'>
+<h2>
+<a href="/articles/2014/02/01/android-chrome-app/">在android上创建chrome app</a>
+<span>Feb  1</span>
+</h2>
+<!--
+use article.summary(250) if you have Nokogiri available to show just
+the first 250 characters
+-->
+<h2>Why not just using phonegap to build the mobile app</h2>
+
+<p>Because setup phonegap toolchain takes more time, while <a href="https://github.com/MobileChromeApps/mobile-chrome-apps">cca</a> is much faster. Further more, it can make use of chrome api.</p>
+
+<h2>installation</h2>
+
+<p>sudo npm install -g cca</p>
+
+<h2>create project</h2>
+
+<p>cca create test –android</p>
+<a href="/articles/2014/02/01/android-chrome-app/">Read More...</a>
+</li>
+<li class='article'>
+<h2>
+<a href="/articles/2013/10/15/css-reset/">CSS RESET</a>
+<span>Oct 15</span>
+</h2>
+<!--
+use article.summary(250) if you have Nokogiri available to show just
+the first 250 characters
+-->
+<h1>CSS RESET</h1>
+
+<hr>
+
+<h2>body</h2>
+
+<p>不同的浏览器对HTML的默认样式有着不同的渲染方式，最简单的方式就
+是用CSS重新对HTML设置一个统一的样式，即CSS RESET.  </p>
+
+<h3>css reset</h3>
+<pre class="highlight css"><code>
+<span class="nt">body</span><span class="o">,</span><span class="nt">div</span><span class="o">,</span><span class="nt">dl</span><span class="o">,</span><span class="nt">dt</span><span class="o">,</span><span class="nt">dd</span><span class="o">,</span><span class="nt">ul</span><span class="o">,</span><span class="nt">ol</span><span class="o">,</span><span class="nt">li</span><span class="o">,</span><span class="nt">h1</span><span class="o">,</span><span class="nt">h2</span><span class="o">,</span><span class="nt">h3</span><span class="o">,</span><span class="nt">h4</span><span class="o">,</span><span class="nt">h5</span><span class="o">,</span><span class="nt">h6</span><span class="o">,</span><span class="nt">pre</span><span class="o">,</span><span class="nt">form</span><span class="o">,</span><span class="nt">fieldset</span><span class="o">,</span>
+<span class="nt">input</span><span class="o">,</span><span class="nt">textarea</span><span class="o">,</span><span class="nt">p</span><span class="o">,</span><span class="nt">blockquote</span><span class="o">,</span><span class="nt">th</span><span class="o">,</span><span class="nt">td</span><span class="p">{</span><span class="nl">margin</span><span class="p">:</span><span class="m">0</span><span class="p">;</span><span class="nl">padding</span><span class="p">:</span><span class="m">0</span><span class="p">;}</span>   
+
+<span class="nt">table</span><span class="p">{</span><span class="nl">border-collapse</span><span class="p">:</span><span class="nb">collapse</span></code></pre>
+<a href="/articles/2013/10/15/css-reset/">Read More...</a>
+</li>
+<li class='article'>
+<h2>
+<a href="/articles/2013/10/10/zyncro-api-console/">Zyncro API Console</a>
+<span>Oct 10</span>
+</h2>
+<!--
+use article.summary(250) if you have Nokogiri available to show just
+the first 250 characters
+-->
+<h1>为什么要做这个Zyncro Console</h1>
+
+<p>Zyncro已经有一个API
+Console，但是再做一个可以更好地体验其API的功能，而且也不难，最重要是自己做比较有趣。</p>
+
+<h1>Zyncro API Console</h1>
+
+<iframe src="https://apigee.com/ruanwz/embed/console/zyncro" width="100%"
+height="600" scrolling="no"></iframe>
+
+<a href="/articles/2013/10/10/zyncro-api-console/">Read More...</a>
+</li>
+<li class='article'>
+<h2>
+<a href="/articles/2012/01/01/example-article/">Example Article</a>
+<span>Jan  1</span>
+</h2>
+<!--
+use article.summary(250) if you have Nokogiri available to show just
+the first 250 characters
+-->
+<h1>This is a Heading Title</h1>
+
+<h2>This is smaller title</h2>
+
+<ol>
+<li>go home</li>
+<li>cook dinner</li>
+</ol>
+
+<ul>
+<li>this is a option</li>
+<li>option 2
+Thisssss is an example article. You probably want to delete it and write your own articles!</li>
+</ul>
+<pre class="highlight ruby"><code><span class="k">def</span> <span class="nf">my_cool_method</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+  <span class="nb">puts</span> <span class="n">message</span>
+  <span class="k">return</span> <span class="kp">nil</span>
+</code></pre>
+<a href="/articles/2012/01/01/example-article/">Read More...</a>
+</li>
+<ul class='pager'>
+<li><a href="/p3/">Previous page</a></li>
+</ul>
+</ul>
+</div>
+<div class='col-lg-4 hidden-xs asider hidden-md hidden-sm'>
+<dl class='well-lg content_box'>
+<dt>
+<h2>Recent Articles</h2>
+</dt>
+<dd>
+<ol>
+<li>
+<a href="/articles/2014/09/12/encoding-message/">encoding message</a>
+<span>Sep 12</span>
+</li>
+<li>
+<a href="/articles/2014/09/09/meet-elixir/">meet elixir</a>
+<span>Sep  9</span>
+</li>
+<li>
+<a href="/articles/2014/09/06/review-confident-ruby-handling-failure/">review confident ruby(handling failure)</a>
+<span>Sep  6</span>
+</li>
+<li>
+<a href="/articles/2014/09/05/review-confident-ruby-delivering-results/">review confident ruby(delivering results)</a>
+<span>Sep  5</span>
+</li>
+<li>
+<a href="/articles/2014/09/04/review-confident-ruby-collecting-input/">review confident ruby(collecting input)</a>
+<span>Sep  4</span>
+</li>
+<li>
+<a href="/articles/2014/09/03/review-confident-ruby/">review confident ruby</a>
+<span>Sep  3</span>
+</li>
+<li>
+<a href="/articles/2014/08/23/developing-rails-app-using-docker-by-fig/">Developing Rails App Using Docker by fig</a>
+<span>Aug 23</span>
+</li>
+<li>
+<a href="/articles/2014/07/24/decision-tree/">Decision Tree</a>
+<span>Jul 24</span>
+</li>
+<li>
+<a href="/articles/2014/05/19/try-facebook-testing-lib-jest/">Try facebook testing lib Jest</a>
+<span>May 19</span>
+</li>
+<li>
+<a href="/articles/2014/03/27/reading-notes-of-a-rubymotion-book/">Reading notes of a rubymotion book</a>
+<span>Mar 27</span>
+</li>
+</ol>
+</dd>
+<dt>
+<h2>Tags</h2>
+</dt>
+<dd>
+<ol>
+<li>
+<a href="/tags/example/">example</a>
+(2)
+</li>
+<li>
+<a href="/tags/api/">api</a>
+(1)
+</li>
+<li>
+<a href="/tags/oauth/">oauth</a>
+(1)
+</li>
+<li>
+<a href="/tags/rest/">rest</a>
+(1)
+</li>
+<li>
+<a href="/tags/mobile/">mobile</a>
+(2)
+</li>
+<li>
+<a href="/tags/android/">android</a>
+(3)
+</li>
+<li>
+<a href="/tags/chrome/">chrome</a>
+(2)
+</li>
+<li>
+<a href="/tags/phonegap/">phonegap</a>
+(1)
+</li>
+<li>
+<a href="/tags/vim/">vim</a>
+(1)
+</li>
+<li>
+<a href="/tags/guard/">guard</a>
+(1)
+</li>
+<li>
+<a href="/tags/unix/">unix</a>
+(1)
+</li>
+<li>
+<a href="/tags/pipe/">pipe</a>
+(1)
+</li>
+<li>
+<a href="/tags/tmux/">tmux</a>
+(1)
+</li>
+<li>
+<a href="/tags/bootstrap/">bootstrap</a>
+(2)
+</li>
+<li>
+<a href="/tags/sass/">sass</a>
+(1)
+</li>
+<li>
+<a href="/tags/webrtc/">webrtc</a>
+(1)
+</li>
+<li>
+<a href="/tags/raspberrypi/">raspberrypi</a>
+(2)
+</li>
+<li>
+<a href="/tags/upstart/">upstart</a>
+(1)
+</li>
+<li>
+<a href="/tags/ruby/">ruby</a>
+(9)
+</li>
+<li>
+<a href="/tags/zeromq/">zeromq</a>
+(1)
+</li>
+<li>
+<a href="/tags/message_queue/">message_queue</a>
+(1)
+</li>
+<li>
+<a href="/tags/opencv/">opencv</a>
+(1)
+</li>
+<li>
+<a href="/tags/rubuto/">rubuto</a>
+(1)
+</li>
+<li>
+<a href="/tags/jruby/">jruby</a>
+(2)
+</li>
+<li>
+<a href="/tags/markdown/">markdown</a>
+(1)
+</li>
+<li>
+<a href="/tags/heroku/">heroku</a>
+(2)
+</li>
+<li>
+<a href="/tags/presentation/">presentation</a>
+(1)
+</li>
+<li>
+<a href="/tags/reveal-js/">reveal.js</a>
+(1)
+</li>
+<li>
+<a href="/tags/speedreading/">speedreading</a>
+(1)
+</li>
+<li>
+<a href="/tags/extension/">extension</a>
+(1)
+</li>
+<li>
+<a href="/tags/baas/">BaaS</a>
+(1)
+</li>
+<li>
+<a href="/tags/nodejs/">nodejs</a>
+(1)
+</li>
+<li>
+<a href="/tags/paas/">PaaS</a>
+(2)
+</li>
+<li>
+<a href="/tags/r/">R</a>
+(2)
+</li>
+<li>
+<a href="/tags/web/">web</a>
+(2)
+</li>
+<li>
+<a href="/tags/delegate/">delegate</a>
+(1)
+</li>
+<li>
+<a href="/tags/rtc/">rtc</a>
+(1)
+</li>
+<li>
+<a href="/tags/screencast/">screencast</a>
+(1)
+</li>
+<li>
+<a href="/tags/terminal/">terminal</a>
+(1)
+</li>
+<li>
+<a href="/tags/windows/">windows</a>
+(1)
+</li>
+<li>
+<a href="/tags/virtualbox/">virtualbox</a>
+(1)
+</li>
+<li>
+<a href="/tags/linux/">linux</a>
+(1)
+</li>
+<li>
+<a href="/tags/ruboto/">ruboto</a>
+(1)
+</li>
+<li>
+<a href="/tags/statics/">statics</a>
+(1)
+</li>
+<li>
+<a href="/tags/ios/">iOS</a>
+(1)
+</li>
+<li>
+<a href="/tags/rubymotion/">rubymotion</a>
+(2)
+</li>
+<li>
+<a href="/tags/promotion/">ProMotion</a>
+(1)
+</li>
+<li>
+<a href="/tags/teacup/">teacup</a>
+(1)
+</li>
+<li>
+<a href="/tags/javascript/">javascript</a>
+(1)
+</li>
+<li>
+<a href="/tags/coffeescript/">coffeescript</a>
+(1)
+</li>
+<li>
+<a href="/tags/testing/">testing</a>
+(1)
+</li>
+<li>
+<a href="/tags/elixir/">elixir</a>
+(1)
+</li>
+<li>
+<a href="/tags/practicingruby/">practicingruby</a>
+(1)
+</li>
+</ol>
+</dd>
+<dt>
+<h2>By Year</h2>
+</dt>
+<dd>
+<ol>
+<li>
+<a href="/2014/">2014</a>
+(31)
+</li>
+<li>
+<a href="/2013/">2013</a>
+(2)
+</li>
+<li>
+<a href="/2012/">2012</a>
+(1)
+</li>
+</ol>
+</dd>
+</dl>
+</div>
+</div>
+<div class='row'>
+<div class='col-xs-12 hidden-lg asider'>
+<dl class='well-lg content_box'>
+<dt>
+<h2>Recent Articles</h2>
+</dt>
+<dd>
+<ol>
+<li>
+<a href="/articles/2014/09/12/encoding-message/">encoding message</a>
+<span>Sep 12</span>
+</li>
+<li>
+<a href="/articles/2014/09/09/meet-elixir/">meet elixir</a>
+<span>Sep  9</span>
+</li>
+<li>
+<a href="/articles/2014/09/06/review-confident-ruby-handling-failure/">review confident ruby(handling failure)</a>
+<span>Sep  6</span>
+</li>
+<li>
+<a href="/articles/2014/09/05/review-confident-ruby-delivering-results/">review confident ruby(delivering results)</a>
+<span>Sep  5</span>
+</li>
+<li>
+<a href="/articles/2014/09/04/review-confident-ruby-collecting-input/">review confident ruby(collecting input)</a>
+<span>Sep  4</span>
+</li>
+<li>
+<a href="/articles/2014/09/03/review-confident-ruby/">review confident ruby</a>
+<span>Sep  3</span>
+</li>
+<li>
+<a href="/articles/2014/08/23/developing-rails-app-using-docker-by-fig/">Developing Rails App Using Docker by fig</a>
+<span>Aug 23</span>
+</li>
+<li>
+<a href="/articles/2014/07/24/decision-tree/">Decision Tree</a>
+<span>Jul 24</span>
+</li>
+<li>
+<a href="/articles/2014/05/19/try-facebook-testing-lib-jest/">Try facebook testing lib Jest</a>
+<span>May 19</span>
+</li>
+<li>
+<a href="/articles/2014/03/27/reading-notes-of-a-rubymotion-book/">Reading notes of a rubymotion book</a>
+<span>Mar 27</span>
+</li>
+</ol>
+</dd>
+<dt>
+<h2>Tags</h2>
+</dt>
+<dd>
+<ol>
+<li>
+<a href="/tags/example/">example</a>
+(2)
+</li>
+<li>
+<a href="/tags/api/">api</a>
+(1)
+</li>
+<li>
+<a href="/tags/oauth/">oauth</a>
+(1)
+</li>
+<li>
+<a href="/tags/rest/">rest</a>
+(1)
+</li>
+<li>
+<a href="/tags/mobile/">mobile</a>
+(2)
+</li>
+<li>
+<a href="/tags/android/">android</a>
+(3)
+</li>
+<li>
+<a href="/tags/chrome/">chrome</a>
+(2)
+</li>
+<li>
+<a href="/tags/phonegap/">phonegap</a>
+(1)
+</li>
+<li>
+<a href="/tags/vim/">vim</a>
+(1)
+</li>
+<li>
+<a href="/tags/guard/">guard</a>
+(1)
+</li>
+<li>
+<a href="/tags/unix/">unix</a>
+(1)
+</li>
+<li>
+<a href="/tags/pipe/">pipe</a>
+(1)
+</li>
+<li>
+<a href="/tags/tmux/">tmux</a>
+(1)
+</li>
+<li>
+<a href="/tags/bootstrap/">bootstrap</a>
+(2)
+</li>
+<li>
+<a href="/tags/sass/">sass</a>
+(1)
+</li>
+<li>
+<a href="/tags/webrtc/">webrtc</a>
+(1)
+</li>
+<li>
+<a href="/tags/raspberrypi/">raspberrypi</a>
+(2)
+</li>
+<li>
+<a href="/tags/upstart/">upstart</a>
+(1)
+</li>
+<li>
+<a href="/tags/ruby/">ruby</a>
+(9)
+</li>
+<li>
+<a href="/tags/zeromq/">zeromq</a>
+(1)
+</li>
+<li>
+<a href="/tags/message_queue/">message_queue</a>
+(1)
+</li>
+<li>
+<a href="/tags/opencv/">opencv</a>
+(1)
+</li>
+<li>
+<a href="/tags/rubuto/">rubuto</a>
+(1)
+</li>
+<li>
+<a href="/tags/jruby/">jruby</a>
+(2)
+</li>
+<li>
+<a href="/tags/markdown/">markdown</a>
+(1)
+</li>
+<li>
+<a href="/tags/heroku/">heroku</a>
+(2)
+</li>
+<li>
+<a href="/tags/presentation/">presentation</a>
+(1)
+</li>
+<li>
+<a href="/tags/reveal-js/">reveal.js</a>
+(1)
+</li>
+<li>
+<a href="/tags/speedreading/">speedreading</a>
+(1)
+</li>
+<li>
+<a href="/tags/extension/">extension</a>
+(1)
+</li>
+<li>
+<a href="/tags/baas/">BaaS</a>
+(1)
+</li>
+<li>
+<a href="/tags/nodejs/">nodejs</a>
+(1)
+</li>
+<li>
+<a href="/tags/paas/">PaaS</a>
+(2)
+</li>
+<li>
+<a href="/tags/r/">R</a>
+(2)
+</li>
+<li>
+<a href="/tags/web/">web</a>
+(2)
+</li>
+<li>
+<a href="/tags/delegate/">delegate</a>
+(1)
+</li>
+<li>
+<a href="/tags/rtc/">rtc</a>
+(1)
+</li>
+<li>
+<a href="/tags/screencast/">screencast</a>
+(1)
+</li>
+<li>
+<a href="/tags/terminal/">terminal</a>
+(1)
+</li>
+<li>
+<a href="/tags/windows/">windows</a>
+(1)
+</li>
+<li>
+<a href="/tags/virtualbox/">virtualbox</a>
+(1)
+</li>
+<li>
+<a href="/tags/linux/">linux</a>
+(1)
+</li>
+<li>
+<a href="/tags/ruboto/">ruboto</a>
+(1)
+</li>
+<li>
+<a href="/tags/statics/">statics</a>
+(1)
+</li>
+<li>
+<a href="/tags/ios/">iOS</a>
+(1)
+</li>
+<li>
+<a href="/tags/rubymotion/">rubymotion</a>
+(2)
+</li>
+<li>
+<a href="/tags/promotion/">ProMotion</a>
+(1)
+</li>
+<li>
+<a href="/tags/teacup/">teacup</a>
+(1)
+</li>
+<li>
+<a href="/tags/javascript/">javascript</a>
+(1)
+</li>
+<li>
+<a href="/tags/coffeescript/">coffeescript</a>
+(1)
+</li>
+<li>
+<a href="/tags/testing/">testing</a>
+(1)
+</li>
+<li>
+<a href="/tags/elixir/">elixir</a>
+(1)
+</li>
+<li>
+<a href="/tags/practicingruby/">practicingruby</a>
+(1)
+</li>
+</ol>
+</dd>
+<dt>
+<h2>By Year</h2>
+</dt>
+<dd>
+<ol>
+<li>
+<a href="/2014/">2014</a>
+(31)
+</li>
+<li>
+<a href="/2013/">2013</a>
+(2)
+</li>
+<li>
+<a href="/2012/">2012</a>
+(1)
+</li>
+</ol>
+</dd>
+</dl>
+</div>
+</div>
+
+</div>
+</div>
+</section>
+<footer>
+<script type="text/javascript">
+  var _gaq = _gaq || [];
+  _gaq.push(["_setAccount", "UA-44086232-1"]);
+  _gaq.push(["_trackPageview"]);
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? '//ssl' : '//www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+</footer>
+</body>
+</html>
