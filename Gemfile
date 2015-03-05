@@ -2,11 +2,11 @@
 # the following line to use "https"
 source 'http://rubygems.org'
 
-gem "middleman", "~> 3.1.5"
-gem "middleman-blog", "~> 3.3.0"
+gem "middleman" #, "~> 3.1.5"
+gem "middleman-blog" #, "~> 3.3.0"
 gem "middleman-deploy"
 gem "middleman-disqus"
-gem "middleman-livereload", "~> 3.1.0"
+# gem "middleman-livereload", "~> 3.1.0"
 gem "middleman-syntax"
 gem "redcarpet"
 gem "middleman-google-analytics"
